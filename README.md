@@ -8,12 +8,9 @@ Veja o chat da Twitch, Kick, YouTube e TikTok ao mesmo tempo, num único overlay
   <a href="https://github.com/gderich/multistream-chat-overlay/releases/latest/download/MultistreamChat-Setup.exe">
     <img src="https://img.shields.io/badge/⬇️_Baixar_Instalador-MultistreamChat--Setup.exe-6441a5?style=for-the-badge" alt="Baixar instalador" />
   </a>
-  <a href="https://github.com/gderich/multistream-chat-overlay/releases/latest/download/MultistreamChat-Portable.exe">
-    <img src="https://img.shields.io/badge/⬇️_Baixar_Portátil-MultistreamChat--Portable.exe-2e2e38?style=for-the-badge" alt="Baixar versão portátil" />
-  </a>
 </p>
 
-Esses dois botões sempre apontam para a versão mais recente. Não sabe qual escolher? Use o **Instalador**.
+O botão sempre aponta para a versão mais recente. **O instalador é a única forma oficial de distribuição do aplicativo.**
 
 ## O que ele faz
 
@@ -34,12 +31,13 @@ Esses dois botões sempre apontam para a versão mais recente. Não sabe qual es
 
 ## Instalação (sem terminal, sem prompt)
 
-1. Clique em um dos botões de download lá em cima — o **Instalador** (recomendado) ou o **Portátil** (não instala nada, só abre e usa).
-2. Se baixou o Instalador: dê dois cliques nele e siga o assistente (Avançar → Avançar → Concluir). Ele já cria atalho na área de trabalho e no menu iniciar.
-3. Se baixou o Portátil: dê dois cliques direto nele. Não precisa instalar nada — pode até rodar de um pendrive.
-4. Pronto. O app abre e já está pronto pra usar.
+1. Clique no botão **Baixar Instalador** acima.
+2. Dê dois cliques no `MultistreamChat-Setup.exe` baixado.
+3. Siga o assistente (Avançar → Avançar → Concluir).
+4. O instalador cria os atalhos na área de trabalho e no menu iniciar.
+5. Pronto. O app abre e já está pronto pra usar.
 
-> Se o Windows SmartScreen exibir um aviso ("O Windows protegeu seu computador" / "Editor desconhecido"), isso é normal para apps novos sem certificado pago de assinatura digital — não é vírus. Clique em **"Mais informações"** → **"Executar assim mesmo"**.
+> Se o Windows SmartScreen exibir um aviso ("O Windows protegeu seu computador" / "Editor desconhecido"), isso pode acontecer porque o aplicativo ainda não possui um certificado de assinatura digital com reputação estabelecida. Isso **não significa, por si só, que o arquivo seja um vírus**. Não execute o arquivo se o alerta do seu antivírus indicar uma ameaça específica.
 
 ## Primeira configuração
 
@@ -60,7 +58,7 @@ Quando travado (click-through), a barra de título some — destrave com `Ctrl+A
 
 ## Apoie o projeto ❤️
 
-O app é e sempre vai ser gratuito. Mas se ele te ajuda no dia a dia da sua live e você quiser retribuir de alguma forma, tem duas opções — sem nenhuma obrigação:
+O app é e sempre será gratuito. Mas se ele te ajuda no dia a dia da sua live e você quiser retribuir de alguma forma, há duas opções — sem nenhuma obrigação:
 
 - **🍺 Pix**: clique no ícone **🍺** na barra do app pra abrir o painel de apoio, com QR Code e código "copia e cola" pra uma cervejinha.
 - **📱 Me siga nas redes**: não pode (ou não quer) doar? Só me seguir já ajuda bastante a manter o projeto vivo → **[linktr.ee/FalaDerix](https://linktr.ee/FalaDerix)**
@@ -84,7 +82,7 @@ Sim. Sem assinatura, sem chave de ativação, sem versão paga. Doação é só 
 Não. O app é gratuito pra uso pessoal de qualquer streamer, mas revenda, redistribuição não autorizada ou uso comercial do software em si não são permitidos — veja os detalhes em [TERMS.md](./TERMS.md).
 
 **Preciso instalar algo além do app?**
-Não. É só baixar e abrir — todas as dependências já vêm empacotadas.
+Não. É só baixar o instalador e seguir o assistente — todas as dependências já vêm empacotadas.
 
 **O app vê minhas mensagens privadas ou dados de login?**
 Não. Ele só lê o chat público de cada plataforma, do mesmo jeito que qualquer espectador vê. Não pede login nem senha de nenhuma das quatro plataformas.
