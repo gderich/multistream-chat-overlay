@@ -1,0 +1,33 @@
+{
+  "channels": {
+    "twitch": "",
+    "kick": "",
+    "youtube": "",
+    "tiktok": ""
+  },
+  "filters": {
+    "twitch": true,
+    "kick": true,
+    "youtube": true,
+    "tiktok": true
+  },
+  "display": {
+    "maxMessages": 100,
+    "messageTTL": 0,
+    "style": "compact",
+    "theme": "dark",
+    "width": 420,
+    "height": 640,
+    "fontSize": 13,
+    "opacity": 80,
+    "spacing": 4,
+    "showTimestamp": false,
+    "showAvatars": true,
+    "showEvents": true
+  },
+  "behavior": {
+    "startLocked": false,
+    "saveHistory": false
+  },
+  "onboarded": false
+}

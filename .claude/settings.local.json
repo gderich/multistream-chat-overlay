@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Set-Content *)",
+      "PowerShell(npm install *)",
+      "PowerShell(npm run *)",
+      "PowerShell(git *)",
+      "PowerShell(npm start *)",
+      "PowerShell(Copy-Item *)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(if \\(Test-Path \"dist\\\\MultistreamChat-Portable.exe\"\\) { Write-Output \"✅ Build concluído!\"; Get-Item \"dist\\\\MultistreamChat-Portable.exe\" | Format-List Name, @{Name='Size\\(MB\\)';Expression={[math]::Round\\($_.Length/1MB,2\\)}}, LastWriteTime } else { Write-Output \"⏳ Build ainda processando...\"; Get-Content C:\\\\Users\\\\Dell\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-Dell-Documents-projeto-multistream-chat\\\\44c03bab-aed9-4c86-a0af-69b51e84948f\\\\tasks\\\\b01k7f5k0.output -Tail 5 })"
+    ]
+  }
+}

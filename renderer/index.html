@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<title>Multistream Chat Overlay</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app" class="theme-dark style-compact">
+
+    <div id="onboarding" class="hidden">
+      <div id="onboardingBox">
+        <label style="display:flex; align-items:center; font-size:12px; gap:8px; margin-bottom:12px; justify-content:center;">
+          <input type="checkbox" id="acceptTerms" />
+          <span>Li e aceito os <a href="#" id="viewTerms" style="color:#7289da; text-decoration:underline;">Termos de Privacidade</a></span>
+        </label>
+        <h2>Bem-vindo(a) 👋</h2>
+        <p>Como você quer começar?</p>
+        <button class="onboardOption" data-preset="simple">Quero algo simples, só meu chat multistream</button>
+        <button class="onboardOption" data-preset="overlay">Quero um overlay discreto sobre o jogo</button>
+        <button class="onboardOption" data-preset="full">Quero ver tudo: eventos, avatares, temas</button>
+        <button class="onboardOption" data-preset="manual">Me dê todo o poder, eu mesmo configuro</button>
+      </div>
+    </div>
+
+    <div id="titlebar">
+      <span id="dragHandle">⠿ Multistream Chat</span>
+      <div id="statusRow"></div>
+      <div id="titlebarButtons">
+        <button id="clearBtn" title="Limpar chat">🗑</button>
+        <button id="reconnectBtn" title="Reiniciar conexões (Ctrl+Alt+R)">⟳</button>
+        <button id="settingsBtn" title="Configurações">⚙</button>
+        <button id="lockBtn" title="Travar/destravar (Ctrl+Alt+L)">🔒</button>
+        <button id="closeBtn" title="Fechar">✕</button>
+      </div>
+    </div>
+
+    <div id="settings" class="hidden">
+
+      <fieldset>
+        <legend>Canais</legend>
+        <label>Twitch <input id="twitchInput" placeholder="ex: gaules" /></label>
+        <label>Kick <input id="kickInput" placeholder="ex: gaules ou https://kick.com/gaules" /></label>
+        <label>YouTube (ID UC... ou @handle) <input id="youtubeInput" placeholder="ex: @seucanal" /></label>
+        <label>TikTok <input id="tiktokInput" placeholder="ex: seuusuario" /></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Filtros (mostrar no chat)</legend>
+        <label class="checkline"><input type="checkbox" id="filterTwitch" /> Twitch</label>
+        <label class="checkline"><input type="checkbox" id="filterKick" /> Kick</label>
+        <label class="checkline"><input type="checkbox" id="filterYoutube" /> YouTube</label>
+        <label class="checkline"><input type="checkbox" id="filterTiktok" /> TikTok</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Mensagens</legend>
+        <label>Mensagens na tela
+          <select id="maxMessagesInput">
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="150">150</option>
+            <option value="200">200</option>
+            <option value="300">300</option>
+          </select>
+        </label>
+        <label>Some após
+          <select id="ttlInput">
+            <option value="0">Nunca</option>
+            <option value="15">15 segundos</option>
+            <option value="30">30 segundos</option>
+            <option value="60">1 minuto</option>
+            <option value="120">2 minutos</option>
+          </select>
+        </label>
+        <label>Velocidade do chat (para lives grandes)
+          <select id="throttleInput">
+            <option value="0">Tempo real (sem delay)</option>
+            <option value="100">Rápido (0.1s entre msgs)</option>
+            <option value="300">Médio (0.3s entre msgs)</option>
+            <option value="500">Lento (0.5s entre msgs)</option>
+            <option value="1000">Muito lento (1s entre msgs)</option>
+          </select>
+        </label>
+        <label class="checkline"><input type="checkbox" id="timestampInput" /> Mostrar horário</label>
+        <label class="checkline"><input type="checkbox" id="avatarsInput" /> Mostrar avatar</label>
+        <label class="checkline"><input type="checkbox" id="eventsInput" /> Mostrar eventos (sub, gift, raid...)</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Aparência</legend>
+        <label>Estilo
+          <select id="styleInput">
+            <option value="compact">Compacto</option>
+            <option value="cards">Cards</option>
+            <option value="bubble">Bubble</option>
+          </select>
+        </label>
+        <label>Tema
+          <select id="themeInput">
+            <option value="dark">Escuro</option>
+            <option value="transparent">Transparente</option>
+            <option value="minimal">Minimalista</option>
+            <option value="gamer">Gamer</option>
+          </select>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Tamanho e transparência</legend>
+        <label>Largura (px) <input type="number" id="widthInput" min="260" max="900" /></label>
+        <label>Altura (px) <input type="number" id="heightInput" min="200" max="1200" /></label>
+        <label>Fonte (px) <input type="number" id="fontSizeInput" min="10" max="22" /></label>
+        <label>Opacidade das mensagens
+          <input type="range" id="opacityInput" min="20" max="100" />
+          <span id="opacityValue"></span>%
+        </label>
+        <label>Espaçamento (px) <input type="range" id="spacingInput" min="0" max="16" /></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Comportamento</legend>
+        <label class="checkline"><input type="checkbox" id="startLockedInput" /> Iniciar sempre bloqueado</label>
+        <label class="checkline"><input type="checkbox" id="saveHistoryInput" /> Salvar histórico da sessão (.txt)</label>
+      </fieldset>
+
+      <div style="display: flex; gap: 8px; margin-top: 12px;">
+        <button id="saveBtn" style="flex: 1;">Salvar e conectar</button>
+        <button id="resetBtn" style="background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; padding: 8px 16px; font-weight: 500;" title="Restaurar Padrões">Restaurar Padrões</button>
+      </div>
+      <p class="hint">Ctrl+Alt+L trava/destrava · Ctrl+Alt+↑/↓ redimensiona · Ctrl+Alt+R reconecta tudo.</p>
+    </div>
+
+    <div id="chat"></div>
+  </div>
+  <script src="renderer.js"></script>
+  <script>
+    // Gerenciar aceite de termos
+    const acceptTerms = document.getElementById("acceptTerms");
+    const viewTerms = document.getElementById("viewTerms");
+    const options = document.querySelectorAll(".onboardOption");
+    
+    if (acceptTerms && options.length > 0) {
+      options.forEach(btn => {
+        btn.style.opacity = "0.5";
+        btn.style.pointerEvents = "none";
+      });
+
+      acceptTerms.addEventListener("change", (e) => {
+        options.forEach(btn => {
+          btn.style.opacity = e.target.checked ? "1" : "0.5";
+          btn.style.pointerEvents = e.target.checked ? "auto" : "none";
+        });
+      });
+    }
+
+    if (viewTerms) {
+      viewTerms.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.api.openTerms();
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+{
+    "name":  "multistream-chat-overlay",
+    "version":  "2.0.0",
+    "description":  "Overlay de chat multistream transparente e click-through (Twitch, Kick, YouTube, TikTok)",
+    "main":  "main.js",
+    "scripts":  {
+                    "start":  "electron .",
+                    "build:win":  "electron-builder --win portable nsis"
+                },
+    "author":  "",
+    "license":  "UNLICENSED",
+    "devDependencies":  {
+                            "electron":  "^31.0.0",
+                            "electron-builder":  "^24.13.3"
+                        },
+    "dependencies":  {
+                         "electron-updater":  "^6.8.9",
+                         "tiktok-live-connector":  "^2.4.3",
+                         "tmi.js":  "^1.8.5",
+                         "ws":  "^8.17.0",
+                         "youtube-chat":  "^2.2.0"
+                     },
+    "build":  {
+                  "appId":  "com.multistream.chatoverlay",
+                  "productName":  "Multistream Chat Overlay",
+                  "files":  [
+                                "**/*",
+                                "!node_modules/electron-builder/**",
+                                "!history/**"
+                            ],
+                  "win":  {
+                              "target":  [
+                                             {
+                                                 "target":  "nsis",
+                                                 "arch":  [
+                                                              "x64",
+                                                              "ia32"
+                                                          ]
+                                             },
+                                             {
+                                                 "target":  "portable",
+                                                 "arch":  [
+                                                              "x64",
+                                                              "ia32"
+                                                          ]
+                                             }
+                                         ],
+                              "signAndEditExecutable":  false
+                          },
+                  "portable":  {
+                                   "artifactName":  "MultistreamChat-Portable.exe"
+                               },
+                  "nsis":  {
+                               "oneClick":  false,
+                               "createDesktopShortcut":  true,
+                               "artifactName":  "MultistreamChat-Setup-${version}.exe",
+                               "deleteAppDataOnUninstall":  true,
+                               "runAfterFinish":  true,
+                               "allowToChangeInstallationDirectory":  true,
+                               "uninstallDisplayName":  "Multistream Chat Overlay",
+                               "createStartMenuShortcut":  true,
+                               "perMachine":  false,
+                               "displayLanguageSelector":  false
+                           },
+                  "publish":  [
+                                  {
+                                      "provider":  "github",
+                                      "owner":  "gderich",
+                                      "repo":  "multistream-chat-overlay"
+                                  }
+                              ]
+              }
+}
