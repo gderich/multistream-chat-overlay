@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('api', {
   saveConfig: (cfg) => ipcRenderer.send('save-config', cfg),
   resetConfig: () => ipcRenderer.send('reset-config'),
   openTerms: () => ipcRenderer.send('open-terms'),
+  openExternal: (url) => ipcRenderer.send('open-external', url),
   reconnectAll: () => ipcRenderer.send('reconnect-all'),
   quitApp: () => ipcRenderer.send('quit-app'),
 });

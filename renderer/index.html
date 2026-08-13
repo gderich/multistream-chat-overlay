@@ -29,9 +29,18 @@
       <div id="titlebarButtons">
         <button id="clearBtn" title="Limpar chat">🗑</button>
         <button id="reconnectBtn" title="Reiniciar conexões (Ctrl+Alt+R)">⟳</button>
+        <button id="donateBtn" title="Apoiar o projeto">🍺</button>
         <button id="settingsBtn" title="Configurações">⚙</button>
         <button id="lockBtn" title="Travar/destravar (Ctrl+Alt+L)">🔒</button>
         <button id="closeBtn" title="Fechar">✕</button>
+      </div>
+    </div>
+
+    <div id="donateBanner">
+      <span>🍺 Curtindo? Considere apoiar</span>
+      <div id="donateBannerButtons">
+        <button id="donateBannerBtn">Apoiar</button>
+        <button id="donateBannerClose" title="Fechar">✕</button>
       </div>
     </div>
 
@@ -131,8 +140,45 @@
       <p class="hint">Ctrl+Alt+L trava/destrava · Ctrl+Alt+↑/↓ redimensiona · Ctrl+Alt+R reconecta tudo.</p>
     </div>
 
+    <div id="donate" class="hidden">
+      <div id="donateHeader">
+        <div>
+          <strong>Curtindo o app?</strong>
+          <p>Ele é 100% gratuito e vai continuar assim. Se ele te ajuda, uma cervejinha via Pix é bem-vinda — mas nunca obrigatória 🙂</p>
+        </div>
+        <button id="donateCloseBtn" title="Fechar">✕</button>
+      </div>
+
+      <div id="pixSection">
+        <div id="amountRow">
+          <button class="amountChip" data-amount="2">🥤<br>R$ 2</button>
+          <button class="amountChip" data-amount="5">🍺<br>R$ 5</button>
+          <button class="amountChip" data-amount="10">🍻<br>R$ 10</button>
+          <button class="amountChip" data-amount="25">🎉<br>R$ 25</button>
+        </div>
+        <button id="outroBtn">Outro valor</button>
+        <p id="amountHint" class="hint">Escaneie o QR ou copie o código abaixo e informe o valor no seu app do banco.</p>
+
+        <div id="pixQrWrap">
+          <div id="pixQrCode"></div>
+        </div>
+        <p id="pixEmptyState" class="hint hidden">O QR ainda não foi configurado por aqui — mas você pode apoiar direto pelas redes abaixo 👇</p>
+
+        <div id="pixCodeRow" class="hidden">
+          <input id="pixCodeInput" readonly />
+          <button id="copyPixBtn">Copiar código Pix</button>
+        </div>
+      </div>
+
+      <div id="followSection">
+        <p><strong>Não pode doar agora?</strong> Sem problema — me seguir nas redes já ajuda demais a manter o projeto vivo!</p>
+        <button id="followBtn">Seguir / ver redes</button>
+      </div>
+    </div>
+
     <div id="chat"></div>
   </div>
+  <script src="vendor/qrcode.min.js"></script>
   <script src="renderer.js"></script>
   <script>
     // Gerenciar aceite de termos

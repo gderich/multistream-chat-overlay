@@ -7,8 +7,8 @@
                     "start":  "electron .",
                     "build:win":  "electron-builder --win portable nsis"
                 },
-    "author":  "",
-    "license":  "UNLICENSED",
+    "author":  "FalaDerix",
+    "license":  "SEE LICENSE IN TERMS.md",
     "devDependencies":  {
                             "electron":  "^31.0.0",
                             "electron-builder":  "^24.13.3"
@@ -26,7 +26,9 @@
                   "files":  [
                                 "**/*",
                                 "!node_modules/electron-builder/**",
-                                "!history/**"
+                                "!history/**",
+                                "!docs/**",
+                                "!.github/**"
                             ],
                   "win":  {
                               "target":  [
@@ -53,7 +55,7 @@
                   "nsis":  {
                                "oneClick":  false,
                                "createDesktopShortcut":  true,
-                               "artifactName":  "MultistreamChat-Setup-${version}.exe",
+                               "artifactName":  "MultistreamChat-Setup.exe",
                                "deleteAppDataOnUninstall":  true,
                                "runAfterFinish":  true,
                                "allowToChangeInstallationDirectory":  true,

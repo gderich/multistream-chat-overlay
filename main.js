@@ -30,6 +30,23 @@ const DEFAULT_CONFIG = {
     startLocked: false,
     saveHistory: false,
   },
+  // Doação é 100% opcional e não desbloqueia nada — o app é gratuito e
+  // completo pra qualquer pessoa, com ou sem apoio.
+  support: {
+    linktree: 'https://linktr.ee/FalaDerix',
+    pix: {
+      // Código "copia e cola" de valor livre — usado no botão "Outro valor"
+      // e como reserva pra qualquer valor fixo que ainda não tenha código
+      // próprio abaixo. Deixe tudo vazio pra ocultar o QR e mostrar só as redes.
+      livre: '00020126750014BR.GOV.BCB.PIX0114+55859969465510235Agradecimento pelo Multistream Chat5204000053039865802BR5925GABRIEL DERICH FREITAS AM6009SAO PAULO622605224yJQ4UeEipXpNGw2OZWFK06304A516',
+      // Códigos de valor fixo, um por botão. Gerados no app do banco
+      // escolhendo o valor exato (R$2, R$5, R$10, R$25) em vez de "livre".
+      '2': '00020126700014BR.GOV.BCB.PIX0114+55859969465510230Agradecimento MultiStream Chat52040000530398654042.005802BR5925GABRIEL DERICH FREITAS AM6009SAO PAULO622605221DE7eMcFw2tGmf4RkxTiYy6304A6F1',
+      '5': '00020126710014BR.GOV.BCB.PIX0114+55859969465510231Agradecimento MultiStream Chat 52040000530398654045.005802BR5925GABRIEL DERICH FREITAS AM6009SAO PAULO622605222p8gfDIcIAcewck9n8MBFs6304E5E1',
+      '10': '00020126710014BR.GOV.BCB.PIX0114+55859969465510231Agradecimento MultiStream Chat 520400005303986540510.005802BR5925GABRIEL DERICH FREITAS AM6009SAO PAULO62260522141ZklNKegXKFS8ocDNVhN6304B229',
+      '25': '00020126710014BR.GOV.BCB.PIX0114+55859969465510231Agradecimento MultiStream Chat 520400005303986540525.005802BR5925GABRIEL DERICH FREITAS AM6009SAO PAULO622605221AFYGOX0vzVUa6dbay8sAj6304E4E3',
+    },
+  },
   onboarded: false,
 };
 
@@ -199,6 +216,14 @@ app.whenReady().then(() => {
 
 ipcMain.on('open-terms', () => {
   shell.openExternal('https://github.com/gderich/multistream-chat-overlay/blob/main/TERMS.md');
+});
+
+// Usado pelo painel "Apoiar" (link do Linktree/redes). Só abre http(s), no
+// navegador padrão do sistema — nunca dentro do próprio overlay.
+ipcMain.on('open-external', (event, url) => {
+  if (typeof url === 'string' && /^https:\/\//.test(url)) {
+    shell.openExternal(url);
+  }
 });
 
 ipcMain.on('reset-config', () => {

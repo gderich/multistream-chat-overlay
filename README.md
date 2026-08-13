@@ -2,6 +2,19 @@
 
 Veja o chat da Twitch, Kick, YouTube e TikTok ao mesmo tempo, num único overlay transparente por cima do jogo — sem precisar alternar entre abas ou janelas enquanto você transmite.
 
+**100% gratuito.** Este projeto não é comercial: não tem assinatura, não tem chave de ativação, não tem versão "paga" com mais recursos. É pra qualquer streamer usar à vontade.
+
+<p>
+  <a href="https://github.com/gderich/multistream-chat-overlay/releases/latest/download/MultistreamChat-Setup.exe">
+    <img src="https://img.shields.io/badge/⬇️_Baixar_Instalador-MultistreamChat--Setup.exe-6441a5?style=for-the-badge" alt="Baixar instalador" />
+  </a>
+  <a href="https://github.com/gderich/multistream-chat-overlay/releases/latest/download/MultistreamChat-Portable.exe">
+    <img src="https://img.shields.io/badge/⬇️_Baixar_Portátil-MultistreamChat--Portable.exe-2e2e38?style=for-the-badge" alt="Baixar versão portátil" />
+  </a>
+</p>
+
+Esses dois botões sempre apontam para a versão mais recente. Não sabe qual escolher? Use o **Instalador**.
+
 ## O que ele faz
 
 - **4 plataformas em um só lugar**: Twitch, Kick, YouTube e TikTok, com cor própria pra cada uma.
@@ -17,15 +30,16 @@ Veja o chat da Twitch, Kick, YouTube e TikTok ao mesmo tempo, num único overlay
 
 - Windows 10 ou superior (64 ou 32 bits).
 - Conexão com a internet.
-- Uma assinatura ativa do Multistream Chat Overlay.
+- Nada mais. Sem conta, sem cadastro, sem pagamento.
 
-## Instalação
+## Instalação (sem terminal, sem prompt)
 
-1. Baixe o instalador (`MultistreamChat-Setup-X.X.X.exe`) ou a versão portátil (`MultistreamChat-Portable.exe`) — ambos disponíveis após a assinatura.
-2. Rode o instalador (ou simplesmente abra o portátil, sem instalar nada).
-3. Na primeira execução, o app pede sua chave de ativação — ela é enviada por e-mail assim que a assinatura é confirmada.
+1. Clique em um dos botões de download lá em cima — o **Instalador** (recomendado) ou o **Portátil** (não instala nada, só abre e usa).
+2. Se baixou o Instalador: dê dois cliques nele e siga o assistente (Avançar → Avançar → Concluir). Ele já cria atalho na área de trabalho e no menu iniciar.
+3. Se baixou o Portátil: dê dois cliques direto nele. Não precisa instalar nada — pode até rodar de um pendrive.
+4. Pronto. O app abre e já está pronto pra usar.
 
-> Se o Windows SmartScreen exibir um aviso na primeira execução, isso é normal para apps novos e assinados recentemente — clique em "Mais informações" → "Executar assim mesmo".
+> Se o Windows SmartScreen exibir um aviso ("O Windows protegeu seu computador" / "Editor desconhecido"), isso é normal para apps novos sem certificado pago de assinatura digital — não é vírus. Clique em **"Mais informações"** → **"Executar assim mesmo"**.
 
 ## Primeira configuração
 
@@ -44,18 +58,30 @@ Depois, informe o nome de canal/usuário de cada plataforma que você usa e pron
 
 Quando travado (click-through), a barra de título some — destrave com `Ctrl+Alt+L` pra mexer nas configurações.
 
-## Assinatura
+## Apoie o projeto ❤️
 
-- **Plano mensal ou anual** — escolha na hora da compra.
-- Renovação automática até o cancelamento; cancele quando quiser e o acesso continua até o fim do ciclo já pago.
-- Dúvidas sobre cobrança, cancelamento ou reembolso: veja o [TERMS.md](./TERMS.md) ou fale com o suporte (abaixo).
-- As atualizações do app são automáticas — você é avisado quando uma nova versão é baixada e só precisa confirmar o reinício.
+O app é e sempre vai ser gratuito. Mas se ele te ajuda no dia a dia da sua live e você quiser retribuir de alguma forma, tem duas opções — sem nenhuma obrigação:
+
+- **🍺 Pix**: clique no ícone **🍺** na barra do app pra abrir o painel de apoio, com QR Code e código "copia e cola" pra uma cervejinha.
+- **📱 Me siga nas redes**: não pode (ou não quer) doar? Só me seguir já ajuda bastante a manter o projeto vivo → **[linktr.ee/FalaDerix](https://linktr.ee/FalaDerix)**
+
+Nenhuma das duas opções desbloqueia nada — o app é o mesmo, completo, pra todo mundo.
+
+## Atualizações automáticas
+
+O app verifica sozinho se há uma versão nova e baixa em segundo plano; você só confirma o reinício quando ela avisar. Nada de mensagens de chat, credenciais ou dados pessoais são enviados nesse processo.
 
 ## Suporte
 
-Encontrou um problema ou tem uma sugestão? [PREENCHER: canal de suporte — e-mail, Discord, formulário, etc.]
+Encontrou um problema ou tem uma sugestão? Abra uma **Issue** aqui no repositório, ou me chame pelas redes: [linktr.ee/FalaDerix](https://linktr.ee/FalaDerix)
 
 ## Perguntas frequentes
+
+**É realmente grátis, sem pegadinha?**
+Sim. Sem assinatura, sem chave de ativação, sem versão paga. Doação é só um "obrigado" opcional, não é requisito pra usar.
+
+**Posso usar isso comercialmente / revender / redistribuir como se fosse meu?**
+Não. O app é gratuito pra uso pessoal de qualquer streamer, mas revenda, redistribuição não autorizada ou uso comercial do software em si não são permitidos — veja os detalhes em [TERMS.md](./TERMS.md).
 
 **Preciso instalar algo além do app?**
 Não. É só baixar e abrir — todas as dependências já vêm empacotadas.
@@ -64,11 +90,11 @@ Não. É só baixar e abrir — todas as dependências já vêm empacotadas.
 Não. Ele só lê o chat público de cada plataforma, do mesmo jeito que qualquer espectador vê. Não pede login nem senha de nenhuma das quatro plataformas.
 
 **Uma das plataformas parou de mostrar mensagens, e as outras continuam normais — é bug?**
-Twitch, Kick, YouTube e TikTok não têm APIs de chat 100% estáveis pra esse tipo de uso, então cada uma é isolada das outras: se uma tiver instabilidade momentânea, ela reconecta sozinha sem travar as demais. Se persistir por muito tempo, chame o suporte.
+Twitch, Kick, YouTube e TikTok não têm APIs de chat 100% estáveis pra esse tipo de uso, então cada uma é isolada das outras: se uma tiver instabilidade momentânea, ela reconecta sozinha sem travar as demais. Se persistir por muito tempo, abra uma Issue.
 
 **Posso usar em mais de um computador?**
-[PREENCHER: política de ativação — 1 dispositivo por assinatura, N dispositivos, etc.]
+Sim, à vontade — não há limite de dispositivos nem verificação de licença.
 
 ---
 
-© Multistream Chat Overlay. Uso sujeito aos [Termos de Uso e Política de Privacidade](./TERMS.md).
+© Multistream Chat Overlay — projeto gratuito e sem fins comerciais de **FalaDerix**. Uso sujeito aos [Termos de Uso e Política de Privacidade](./TERMS.md).

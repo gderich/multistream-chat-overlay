@@ -112,6 +112,46 @@ body.locked #titlebar {
 
 #titlebarButtons button:hover { background: rgba(255,255,255,0.25); }
 
+/* ---------- Banner "Curtindo? Considere apoiar" ---------- */
+#donateBanner {
+  -webkit-app-region: no-drag;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  background: linear-gradient(90deg, rgba(255, 184, 77, 0.22), rgba(255, 77, 77, 0.12));
+  border-bottom: 1px solid rgba(255, 184, 77, 0.4);
+  color: #fff;
+  font-size: 11px;
+}
+#donateBanner.hidden { display: none; }
+body.locked #donateBanner { opacity: 0; pointer-events: none; }
+
+#donateBannerButtons { display: flex; gap: 6px; align-items: center; }
+
+#donateBannerBtn {
+  background: #ff4d4d;
+  border: none;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 11px;
+}
+#donateBannerBtn:hover { background: #ff6666; }
+
+#donateBannerClose {
+  background: transparent;
+  border: none;
+  color: #fff;
+  opacity: 0.6;
+  cursor: pointer;
+  font-size: 11px;
+}
+#donateBannerClose:hover { opacity: 1; }
+
 /* ---------- Painel de configurações ---------- */
 #settings {
   -webkit-app-region: no-drag;
@@ -164,6 +204,126 @@ body.locked #titlebar {
 }
 
 #settings .hint { opacity: 0.6; font-size: 10px; margin: 2px 0 0; }
+
+/* ---------- Apoiar / doações ---------- */
+#donate {
+  -webkit-app-region: no-drag;
+  background: rgba(20, 20, 25, 0.95);
+  color: #fff;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 12px;
+  max-height: 70vh;
+  overflow-y: auto;
+  border-bottom: 1px solid #3a3a44;
+}
+#donate.hidden { display: none; }
+
+#donateHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  border-bottom: 1px solid #ffb84d55;
+  padding-bottom: 10px;
+}
+#donateHeader strong { font-size: 13px; }
+#donateHeader p { margin: 4px 0 0; opacity: 0.8; font-size: 11px; line-height: 1.4; }
+#donateHeader button {
+  background: rgba(255,255,255,0.12);
+  border: none;
+  color: #fff;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+#donateHeader button:hover { background: rgba(255,255,255,0.25); }
+
+#amountRow { display: flex; gap: 6px; }
+.amountChip {
+  flex: 1;
+  background: #2a2a33;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: #fff;
+  padding: 8px 4px;
+  font-size: 11px;
+  line-height: 1.6;
+  cursor: pointer;
+  text-align: center;
+}
+.amountChip:hover { background: #35353f; }
+.amountChip.selected { border-color: #ff4d4d; background: rgba(255, 77, 77, 0.18); }
+
+#outroBtn {
+  width: 100%;
+  padding: 7px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background: #2a2a33;
+  color: #fff;
+  cursor: pointer;
+  font-size: 11px;
+}
+#outroBtn:hover { background: #35353f; }
+#outroBtn.selected { border-color: #ff4d4d; background: rgba(255, 77, 77, 0.18); }
+
+#pixQrWrap {
+  display: flex;
+  justify-content: center;
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px;
+}
+#pixQrWrap.hidden { display: none; }
+
+#pixEmptyState.hidden { display: none; }
+
+#pixCodeRow { display: flex; flex-direction: column; gap: 6px; }
+#pixCodeRow.hidden { display: none; }
+#pixCodeInput {
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #1c1c22;
+  color: #ccc;
+  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#copyPixBtn {
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  background: #ff4d4d;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+}
+#copyPixBtn:hover { background: #ff6666; }
+
+#followSection {
+  border-top: 1px solid #3a3a44;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+#followSection p { margin: 0; opacity: 0.85; line-height: 1.4; }
+#followBtn {
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  background: #6441a5;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+}
+#followBtn:hover { background: #7a52c4; }
 
 /* ---------- Chat ---------- */
 #chat {

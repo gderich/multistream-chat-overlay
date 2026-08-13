@@ -11,6 +11,24 @@ const reconnectBtn = document.getElementById('reconnectBtn');
 const statusRow = document.getElementById('statusRow');
 const onboardingEl = document.getElementById('onboarding');
 
+const donateBtn = document.getElementById('donateBtn');
+const donatePanel = document.getElementById('donate');
+const donateCloseBtn = document.getElementById('donateCloseBtn');
+const amountRow = document.getElementById('amountRow');
+const outroBtn = document.getElementById('outroBtn');
+const amountHint = document.getElementById('amountHint');
+const pixQrCode = document.getElementById('pixQrCode');
+const pixQrWrap = document.getElementById('pixQrWrap');
+const pixEmptyState = document.getElementById('pixEmptyState');
+const pixCodeRow = document.getElementById('pixCodeRow');
+const pixCodeInput = document.getElementById('pixCodeInput');
+const copyPixBtn = document.getElementById('copyPixBtn');
+const followBtn = document.getElementById('followBtn');
+
+const donateBanner = document.getElementById('donateBanner');
+const donateBannerBtn = document.getElementById('donateBannerBtn');
+const donateBannerClose = document.getElementById('donateBannerClose');
+
 const fields = {
   twitch: document.getElementById('twitchInput'),
   kick: document.getElementById('kickInput'),
@@ -322,10 +340,111 @@ function collectForm() {
   };
 }
 
+// ---------- Apoiar / doações ----------
+let currentPix = {}; // { livre, '2', '5', '10', '25' }
+
+function drawQr(code) {
+  pixQrCode.innerHTML = '';
+  if (window.QRCode && code) {
+    // eslint-disable-next-line no-new
+    new window.QRCode(pixQrCode, {
+      text: code,
+      width: 180,
+      height: 180,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+    });
+  }
+}
+
+// key: 'livre' | '2' | '5' | '10' | '25'
+function selectPix(key) {
+  const hasAny = Object.values(currentPix).some((c) => (c || '').trim());
+  if (!hasAny) {
+    pixQrWrap.classList.add('hidden');
+    pixCodeRow.classList.add('hidden');
+    pixEmptyState.classList.remove('hidden');
+    return;
+  }
+
+  pixEmptyState.classList.add('hidden');
+
+  const specific = (currentPix[key] || '').trim();
+  const fallback = (currentPix.livre || '').trim();
+  const code = specific || fallback;
+
+  if (!code) {
+    pixQrWrap.classList.add('hidden');
+    pixCodeRow.classList.add('hidden');
+    return;
+  }
+
+  pixQrWrap.classList.remove('hidden');
+  pixCodeRow.classList.remove('hidden');
+  drawQr(code);
+  pixCodeInput.value = code;
+
+  amountRow.querySelectorAll('.amountChip').forEach((c) => c.classList.remove('selected'));
+  outroBtn.classList.remove('selected');
+
+  if (key === 'livre') {
+    outroBtn.classList.add('selected');
+    amountHint.textContent = 'Valor livre — escaneie ou copie o código e informe o valor que quiser no seu app do banco.';
+  } else {
+    const chip = amountRow.querySelector(`.amountChip[data-amount="${key}"]`);
+    if (chip) chip.classList.add('selected');
+    if (specific) {
+      amountHint.textContent = `QR de R$ ${key} pronto — é só escanear ou copiar o código abaixo.`;
+    } else {
+      amountHint.textContent = `Ainda não tem QR específico de R$ ${key} — usando o código de valor livre. Informe R$ ${key} manualmente no banco.`;
+    }
+  }
+}
+
+function renderDonatePanel(cfg) {
+  const support = (cfg && cfg.support) || {};
+  currentPix = support.pix || {};
+  followBtn.dataset.url = support.linktree || 'https://linktr.ee/FalaDerix';
+  selectPix('livre');
+}
+
+donateBtn.addEventListener('click', () => donatePanel.classList.toggle('hidden'));
+donateCloseBtn.addEventListener('click', () => donatePanel.classList.add('hidden'));
+
+donateBannerBtn.addEventListener('click', () => {
+  donatePanel.classList.remove('hidden');
+  donateBanner.classList.add('hidden');
+});
+donateBannerClose.addEventListener('click', () => donateBanner.classList.add('hidden'));
+
+amountRow.querySelectorAll('.amountChip').forEach((chip) => {
+  chip.addEventListener('click', () => selectPix(chip.dataset.amount));
+});
+outroBtn.addEventListener('click', () => selectPix('livre'));
+
+copyPixBtn.addEventListener('click', async () => {
+  const code = pixCodeInput.value;
+  if (!code) return;
+  try {
+    await navigator.clipboard.writeText(code);
+  } catch (e) {
+    pixCodeInput.select();
+    document.execCommand('copy');
+  }
+  const original = copyPixBtn.textContent;
+  copyPixBtn.textContent = 'Copiado! ✓';
+  setTimeout(() => { copyPixBtn.textContent = original; }, 1800);
+});
+
+followBtn.addEventListener('click', () => {
+  window.api.openExternal(followBtn.dataset.url || 'https://linktr.ee/FalaDerix');
+});
+
 window.api.onLoadConfig((cfg) => {
   config = cfg;
   populateForm(config);
   applyDisplaySettings(config);
+  renderDonatePanel(config);
   if (!config.onboarded) {
     onboardingEl.classList.remove('hidden');
   }
