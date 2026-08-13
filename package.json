@@ -1,6 +1,6 @@
 {
     "name":  "multistream-chat-overlay",
-    "version":  "2.0.0",
+    "version":  "2.0.1",
     "description":  "Overlay de chat multistream transparente e click-through (Twitch, Kick, YouTube, TikTok)",
     "main":  "main.js",
     "scripts":  {

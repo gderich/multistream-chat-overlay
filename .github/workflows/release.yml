@@ -1,17 +1,17 @@
 name: Build e publicar instalador
 
-# Roda quando você empurra uma tag de versão, ex: git tag v2.1.0 && git push origin v2.1.0
 on:
   push:
     tags:
       - 'v*.*.*'
 
 permissions:
-  contents: write # necessário para o Actions publicar a Release neste mesmo repositório
+  contents: write
 
 jobs:
   build-windows:
     runs-on: windows-latest
+
     steps:
       - name: Baixar código
         uses: actions/checkout@v4
@@ -19,15 +19,13 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
+          cache: npm
 
       - name: Instalar dependências
         run: npm ci
 
-      - name: Build + publicar (Setup.exe e Portable.exe)
+      - name: Build e publicar
         run: npm run build:win -- --publish always
         env:
-          # Token automático do próprio GitHub Actions — já tem permissão
-          # pra publicar Releases neste repositório. Não precisa criar nada
-          # manualmente.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
