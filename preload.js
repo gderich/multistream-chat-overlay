@@ -16,5 +16,6 @@ contextBridge.exposeInMainWorld('api', {
   openObsSource: () => ipcRenderer.send('open-obs-source'),
   getObsUrl: () => ipcRenderer.sendSync('get-obs-url'),
   onUpdateStatus: (cb) => ipcRenderer.on('update-status', (_e, status) => cb(status)),
+  onShortcutStatus: (cb) => ipcRenderer.on('shortcut-status', (_e, status) => cb(status)),
   onShowSettings: (cb) => ipcRenderer.on('show-settings', () => cb()),
 });

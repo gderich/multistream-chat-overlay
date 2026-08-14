@@ -40,6 +40,11 @@ const pixCodeRow = document.getElementById('pixCodeRow');
 const pixCodeInput = document.getElementById('pixCodeInput');
 const copyPixBtn = document.getElementById('copyPixBtn');
 const followBtn = document.getElementById('followBtn');
+const lockShortcutInput = document.getElementById('lockShortcutInput');
+const recordShortcutBtn = document.getElementById('recordShortcutBtn');
+const shortcutStatusEl = document.getElementById('shortcutStatus');
+const moreBtn = document.getElementById('moreBtn');
+const compactMenu = document.getElementById('compactMenu');
 
 const donateBanner = document.getElementById('donateBanner');
 const donateBannerBtn = document.getElementById('donateBannerBtn');
@@ -70,6 +75,7 @@ const fields = {
   startLocked: document.getElementById('startLockedInput'),
   saveHistory: document.getElementById('saveHistoryInput'),
   autoUpdate: document.getElementById('autoUpdateInput'),
+  lockShortcut: document.getElementById('lockShortcutInput'),
 };
 const opacityValue = document.getElementById('opacityValue');
 
@@ -290,6 +296,50 @@ function applyDisplaySettings(cfg) {
 }
 
 // ---------- Formulário de configurações ----------
+function formatShortcut(accelerator) {
+  return String(accelerator || '')
+    .replace(/CommandOrControl/g, 'Ctrl')
+    .replace(/Command/g, '⌘')
+    .replace(/Control/g, 'Ctrl')
+    .replace(/Alt/g, 'Alt')
+    .replace(/Shift/g, 'Shift')
+    .replace(/Plus/g, '+')
+    .replace(/Left/g, '←')
+    .replace(/Right/g, '→')
+    .replace(/Up/g, '↑')
+    .replace(/Down/g, '↓')
+    .split('+').join(' + ');
+}
+
+function keyToAccelerator(event) {
+  const parts = [];
+  if (event.ctrlKey) parts.push('CommandOrControl');
+  if (event.metaKey && !event.ctrlKey) parts.push('Command');
+  if (event.altKey) parts.push('Alt');
+  if (event.shiftKey) parts.push('Shift');
+
+  let key = event.key;
+  const code = event.code || '';
+  if (/^Key[A-Z]$/.test(code)) key = code.slice(3);
+  else if (/^Digit[0-9]$/.test(code)) key = code.slice(5);
+  else if (/^F([1-9]|1[0-2])$/.test(key)) key = key.toUpperCase();
+  else {
+    const map = {
+      ' ': 'Space', Escape: 'Esc', Enter: 'Enter', Tab: 'Tab', Backspace: 'Backspace',
+      ArrowUp: 'Up', ArrowDown: 'Down', ArrowLeft: 'Left', ArrowRight: 'Right',
+      Delete: 'Delete', Insert: 'Insert', Home: 'Home', End: 'End', PageUp: 'PageUp', PageDown: 'PageDown'
+    };
+    key = map[key] || key;
+  }
+
+  if (['Control','Alt','Shift','Meta'].includes(key)) return null;
+  if (!parts.length) return { error: 'Use Ctrl, Alt ou Shift junto com a tecla.' };
+  if (!key || key.length > 1 && !/^(F([1-9]|1[0-2])|Space|Esc|Enter|Tab|Backspace|Delete|Insert|Home|End|PageUp|PageDown|Up|Down|Left|Right)$/.test(key)) {
+    return { error: 'Esta tecla não pode ser usada neste atalho.' };
+  }
+  return { accelerator: [...parts, key].join('+') };
+}
+
 function populateForm(cfg) {
   fields.twitch.value = cfg.channels.twitch || '';
   fields.kick.value = cfg.channels.kick || '';
@@ -318,6 +368,8 @@ function populateForm(cfg) {
 
   fields.startLocked.checked = cfg.behavior.startLocked;
   fields.saveHistory.checked = cfg.behavior.saveHistory;
+  fields.lockShortcut.value = formatShortcut(cfg.behavior?.lockShortcut || 'CommandOrControl+Alt+L');
+  fields.lockShortcut.dataset.accelerator = cfg.behavior?.lockShortcut || 'CommandOrControl+Alt+L';
   fields.autoUpdate.checked = cfg.updates?.autoDownload !== false;
   const obs = cfg.obs || {};
   obsEnabledInput.checked = obs.enabled !== false;
@@ -365,6 +417,7 @@ function collectForm() {
     behavior: {
       startLocked: fields.startLocked.checked,
       saveHistory: fields.saveHistory.checked,
+      lockShortcut: fields.lockShortcut.dataset.accelerator || 'CommandOrControl+Alt+L',
     },
     obs: {
       enabled: obsEnabledInput.checked,
@@ -524,7 +577,7 @@ window.api.onLockState((locked) => {
       <div style="font-size: 14px; opacity: 0.9;">A janela está transparente aos cliques</div>
       <div style="margin-top: 12px; padding: 8px; background: rgba(100, 65, 165, 0.3); border-radius: 6px;">
         <strong>Para desbloquear:</strong><br>
-        <code style="font-size: 18px; font-weight: bold; color: #ffd700;">Ctrl + Alt + L</code>
+        <code id="lockShortcutHint" style="font-size: 18px; font-weight: bold; color: #ffd700;">${formatShortcut(config.behavior?.lockShortcut || 'CommandOrControl+Alt+L')}</code>
       </div>
     `;
     document.body.appendChild(notification);
@@ -535,6 +588,67 @@ window.api.onLockState((locked) => {
       setTimeout(() => notification.remove(), 500);
     }, 4000);
   }
+});
+
+// ---------- Atalho de travar/destravar ----------
+let recordingShortcut = false;
+recordShortcutBtn.addEventListener('click', () => {
+  recordingShortcut = !recordingShortcut;
+  recordShortcutBtn.textContent = recordingShortcut ? 'Pressione...' : 'Alterar';
+  lockShortcutInput.classList.toggle('recording', recordingShortcut);
+  shortcutStatusEl.textContent = recordingShortcut
+    ? 'Pressione a combinação desejada agora.'
+    : 'Clique em Alterar e pressione a combinação desejada.';
+});
+
+window.addEventListener('keydown', (event) => {
+  if (!recordingShortcut) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const result = keyToAccelerator(event);
+  if (!result?.accelerator) {
+    shortcutStatusEl.textContent = result?.error || 'Combinação inválida.';
+    return;
+  }
+  lockShortcutInput.dataset.accelerator = result.accelerator;
+  lockShortcutInput.value = formatShortcut(result.accelerator);
+  recordingShortcut = false;
+  recordShortcutBtn.textContent = 'Alterar';
+  lockShortcutInput.classList.remove('recording');
+  shortcutStatusEl.textContent = 'Novo atalho definido. Clique em “Salvar e conectar” para aplicar.';
+}, true);
+
+window.api.onShortcutStatus((status) => {
+  if (!status?.ok) {
+    shortcutStatusEl.textContent = status.message || 'Não foi possível registrar o atalho.';
+    shortcutStatusEl.style.color = '#ff7676';
+  } else {
+    shortcutStatusEl.style.color = '';
+  }
+});
+
+// ---------- Menu compacto ----------
+function closeCompactMenu() { compactMenu.classList.add('hidden'); }
+moreBtn.addEventListener('click', (event) => {
+  event.stopPropagation();
+  compactMenu.classList.toggle('hidden');
+});
+compactMenu.addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-action]');
+  if (!button) return;
+  closeCompactMenu();
+  const actions = {
+    clear: () => clearBtn.click(),
+    reconnect: () => reconnectBtn.click(),
+    donate: () => donateBtn.click(),
+    settings: () => settingsBtn.click(),
+    lock: () => lockBtn.click(),
+    close: () => closeBtn.click(),
+  };
+  actions[button.dataset.action]?.();
+});
+document.addEventListener('click', (event) => {
+  if (!compactMenu.contains(event.target) && event.target !== moreBtn) closeCompactMenu();
 });
 
 // ---------- Interações ----------

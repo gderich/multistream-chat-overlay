@@ -22,6 +22,60 @@ html, body {
   background: transparent;
 }
 
+
+/* ---------- Atalho personalizável ---------- */
+.shortcutRow { display: flex; gap: 8px; align-items: center; }
+.shortcutRow input { flex: 1; text-align: center; font-weight: 600; letter-spacing: 0.2px; }
+.shortcutRow button { white-space: nowrap; }
+
+/* ---------- Menu compacto para janelas estreitas ---------- */
+#titlebar { position: relative; }
+#moreBtn { display: none; font-size: 18px; line-height: 1; padding: 3px 8px; }
+#compactMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 6px;
+  z-index: 1000;
+  min-width: 180px;
+  padding: 5px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  background: rgba(28,28,34,0.98);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+  -webkit-app-region: no-drag;
+}
+#compactMenu.hidden { display: none; }
+#compactMenu button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 0;
+  border-radius: 6px;
+  padding: 8px 9px;
+  background: transparent;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  font-size: 12px;
+}
+#compactMenu button:hover { background: rgba(255,255,255,0.10); }
+#compactMenu button span { flex: 1; }
+
+@media (max-width: 390px) {
+  #titlebar { padding: 5px 6px; }
+  #dragHandle { max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+  #statusRow { display: none; }
+  #titlebarButtons > button:not(#moreBtn) { display: none; }
+  #moreBtn { display: block; }
+}
+
+@media (min-width: 391px) and (max-width: 500px) {
+  #titlebarButtons { gap: 2px; }
+  #titlebarButtons button { padding-left: 5px; padding-right: 5px; }
+  #dragHandle { max-width: 155px; overflow: hidden; text-overflow: ellipsis; }
+}
+
 /* ---------- Onboarding ---------- */
 #onboarding {
   position: absolute;
@@ -447,3 +501,7 @@ body.locked #donateBanner { opacity: 0; pointer-events: none; }
   border-left-width: 4px;
 }
 .theme-gamer .username { text-shadow: 0 0 4px currentColor; }
+.shortcutRow input.recording {
+  border-color: #7289da;
+  box-shadow: 0 0 0 2px rgba(114,137,218,0.22);
+}

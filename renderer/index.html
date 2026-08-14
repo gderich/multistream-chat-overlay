@@ -31,8 +31,17 @@
         <button id="reconnectBtn" title="Reiniciar conexões (Ctrl+Alt+R)">⟳</button>
         <button id="donateBtn" title="Apoiar o projeto">🍺</button>
         <button id="settingsBtn" title="Configurações">⚙</button>
-        <button id="lockBtn" title="Travar/destravar (Ctrl+Alt+L)">🔒</button>
+        <button id="lockBtn" title="Travar/destravar">🔒</button>
         <button id="closeBtn" title="Fechar">✕</button>
+        <button id="moreBtn" title="Mais opções" aria-label="Mais opções">⋮</button>
+      </div>
+      <div id="compactMenu" class="hidden" role="menu">
+        <button data-action="clear">🗑 <span>Limpar chat</span></button>
+        <button data-action="reconnect">⟳ <span>Reconectar</span></button>
+        <button data-action="donate">🍺 <span>Apoiar o projeto</span></button>
+        <button data-action="settings">⚙ <span>Configurações</span></button>
+        <button data-action="lock">🔒 <span>Travar/destravar</span></button>
+        <button data-action="close">✕ <span>Fechar</span></button>
       </div>
     </div>
 
@@ -131,6 +140,13 @@
         <legend>Comportamento</legend>
         <label class="checkline"><input type="checkbox" id="startLockedInput" /> Iniciar sempre bloqueado</label>
         <label class="checkline"><input type="checkbox" id="saveHistoryInput" /> Salvar histórico da sessão (.txt)</label>
+        <label>Atalho para travar/destravar
+          <div class="shortcutRow">
+            <input id="lockShortcutInput" readonly value="Ctrl + Alt + L" />
+            <button id="recordShortcutBtn" type="button">Alterar</button>
+          </div>
+        </label>
+        <p id="shortcutStatus" class="hint">Clique em Alterar e pressione a combinação desejada. Use pelo menos uma tecla modificadora (Ctrl, Alt ou Shift) para evitar conflitos.</p>
       </fieldset>
 
       <fieldset>
@@ -166,7 +182,7 @@
         <button id="saveBtn" style="flex: 1;">Salvar e conectar</button>
         <button id="resetBtn" style="background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; padding: 8px 16px; font-weight: 500;" title="Restaurar Padrões">Restaurar Padrões</button>
       </div>
-      <p class="hint">Ctrl+Alt+L trava/destrava · Ctrl+Alt+↑/↓ redimensiona · Ctrl+Alt+R reconecta tudo.</p>
+      <p class="hint">O atalho de travar/destravar pode ser personalizado. Ctrl+Alt+↑/↓ redimensiona · Ctrl+Alt+R reconecta tudo.</p>
     </div>
 
     <div id="donate" class="hidden">

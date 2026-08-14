@@ -41,6 +41,7 @@ const DEFAULT_CONFIG = {
   behavior: {
     startLocked: false,
     saveHistory: false,
+    lockShortcut: 'CommandOrControl+Alt+L',
   },
   window: {
     x: null,
@@ -218,7 +219,18 @@ function createWindow(cfg) {
 }
 
 function registerShortcuts() {
-  globalShortcut.register('CommandOrControl+Alt+L', () => setLocked(!locked));
+  // Re-registra os atalhos sempre que a configuração mudar.
+  globalShortcut.unregisterAll();
+
+  const lockShortcut = currentConfig.behavior?.lockShortcut || 'CommandOrControl+Alt+L';
+  const registered = globalShortcut.register(lockShortcut, () => setLocked(!locked));
+  if (!registered && mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('shortcut-status', {
+      ok: false,
+      shortcut: lockShortcut,
+      message: 'Não foi possível registrar este atalho. Ele pode estar sendo usado por outro programa.'
+    });
+  }
 
   globalShortcut.register('CommandOrControl+Alt+Up', () => resizeWindow(20));
   globalShortcut.register('CommandOrControl+Alt+Down', () => resizeWindow(-20));
@@ -378,6 +390,7 @@ ipcMain.on('save-config', (event, cfg) => {
   const channelsChanged = JSON.stringify(merged.channels) !== JSON.stringify(currentConfig.channels);
   currentConfig = merged;
   saveConfig(currentConfig);
+  registerShortcuts();
   autoUpdater.autoDownload = currentConfig.updates?.autoDownload !== false;
   autoUpdater.autoInstallOnAppQuit = true;
   applyHistorySetting(currentConfig);

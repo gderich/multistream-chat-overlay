@@ -49,12 +49,12 @@ Depois, informe o nome de canal/usuário de cada plataforma que você usa e pron
 
 | Atalho | Ação |
 |---|---|
-| `Ctrl+Alt+L` | Trava/destrava o clique através da janela |
+| `Ctrl+Alt+L` | Trava/destrava o clique através da janela (personalizável nas configurações) |
 | `Ctrl+Alt+↑` | Aumenta o tamanho da janela |
 | `Ctrl+Alt+↓` | Diminui o tamanho da janela |
 | `Ctrl+Alt+R` | Reinicia todas as conexões |
 
-Quando travado (click-through), a barra de título some — destrave com `Ctrl+Alt+L` pra mexer nas configurações.
+Quando travado (click-through), a barra de título some. O atalho padrão é `Ctrl+Alt+L`, mas pode ser personalizado nas configurações.
 
 ## Apoie o projeto ❤️
 
