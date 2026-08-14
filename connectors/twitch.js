@@ -31,6 +31,7 @@ function connectTwitch(channel, { onMessage, onStatus }) {
       message,
       type: 'chat',
       badges: Object.keys(tags.badges || {}),
+      emotes: tags.emotes || {},
     });
   });
 

@@ -18,6 +18,7 @@ function normalize(raw) {
     color: raw.color || '#888888',
     avatar: raw.avatar || null,
     badges: raw.badges || [],
+    emotes: raw.emotes || {},
     timestamp: raw.timestamp || Date.now(),
     type: raw.type || 'chat',
     meta: raw.meta || {},

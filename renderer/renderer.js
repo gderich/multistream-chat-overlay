@@ -124,6 +124,52 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+// Renderiza os emotes nativos da Twitch como imagens. O tmi.js fornece
+// os intervalos no formato start-end; assim evitamos substituir palavras
+// comuns por engano e preservamos o texto restante exatamente como chegou.
+function renderMessageContent(container, message, emotes, platform) {
+  const text = String(message || '');
+  const ranges = [];
+
+  if (platform === 'twitch' && emotes && typeof emotes === 'object') {
+    for (const [id, positions] of Object.entries(emotes)) {
+      for (const position of positions || []) {
+        const match = String(position).match(/^(\d+)-(\d+)$/);
+        if (!match) continue;
+        ranges.push({ id, start: Number(match[1]), end: Number(match[2]) });
+      }
+    }
+  }
+
+  ranges.sort((a, b) => a.start - b.start);
+
+  let cursor = 0;
+  for (const range of ranges) {
+    if (range.start < cursor || range.start >= text.length) continue;
+    if (range.start > cursor) {
+      container.appendChild(document.createTextNode(text.slice(cursor, range.start)));
+    }
+
+    const emoteText = text.slice(range.start, range.end + 1);
+    const img = document.createElement('img');
+    img.className = 'chat-emote';
+    img.alt = emoteText;
+    img.title = emoteText;
+    img.loading = 'lazy';
+    img.src = `https://static-cdn.jtvnw.net/emoticons/v2/${encodeURIComponent(range.id)}/default/dark/2.0`;
+    img.onerror = () => {
+      const fallback = document.createTextNode(emoteText);
+      img.replaceWith(fallback);
+    };
+    container.appendChild(img);
+    cursor = range.end + 1;
+  }
+
+  if (cursor < text.length) {
+    container.appendChild(document.createTextNode(text.slice(cursor)));
+  }
+}
+
 // ---------- Presets de onboarding ----------
 const PRESETS = {
   simple: {
@@ -235,8 +281,7 @@ function renderMessage(msg) {
 
   const text = document.createElement('div');
   text.className = 'text';
-  // Usar innerHTML para renderizar emojis corretamente
-  text.innerHTML = escapeHtml(msg.message);
+  renderMessageContent(text, msg.message, msg.emotes, msg.platform);
   body.appendChild(text);
 
   div.appendChild(body);
@@ -255,6 +300,11 @@ function renderMessage(msg) {
     }, ttl * 1000);
   }
 }
+
+
+const emoteStyle = document.createElement('style');
+emoteStyle.textContent = `.chat-emote{display:inline-block;width:auto;height:1.6em;max-width:5em;vertical-align:middle;object-fit:contain;margin:0 .06em}`;
+document.head.appendChild(emoteStyle);
 
 window.api.onChatMessage(addMessage);
 

@@ -8,7 +8,7 @@
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent;color:#fff;font-family:Arial,sans-serif}
 #chat{display:flex;flex-direction:column;justify-content:flex-end;width:100%;height:100%;box-sizing:border-box;padding:8px;gap:6px}
 .msg{display:flex;gap:8px;align-items:flex-start;padding:7px 10px;border-left:3px solid #888;background:rgba(0,0,0,.55);border-radius:6px;box-sizing:border-box;backdrop-filter:blur(3px)}
-.avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;flex:0 0 auto}.body{min-width:0;flex:1}.head{display:flex;gap:6px;align-items:center;font-size:12px;min-width:0}.platform{font-size:10px;padding:2px 5px;border-radius:3px;color:#fff}.user{font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.time{opacity:.6}.text{font-size:16px;line-height:1.3;overflow-wrap:anywhere;word-break:break-word}.event{opacity:.9}
+.avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;flex:0 0 auto}.body{min-width:0;flex:1}.head{display:flex;gap:6px;align-items:center;font-size:12px;min-width:0}.platform{font-size:10px;padding:2px 5px;border-radius:3px;color:#fff}.user{font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.time{opacity:.6}.text{font-size:16px;line-height:1.3;overflow-wrap:anywhere;word-break:break-word}.chat-emote{display:inline-block;width:auto;height:1.6em;max-width:5em;vertical-align:middle;object-fit:contain;margin:0 .06em}.event{opacity:.9}
 #state{position:fixed;right:6px;bottom:6px;width:7px;height:7px;border-radius:50%;background:#777;opacity:.25}
 </style>
 </head>
@@ -19,6 +19,28 @@ const state=document.getElementById('state');
 let cfg={maxMessages:100,fontSize:16,opacity:100,spacing:6,padding:8,showTimestamp:false,showAvatars:true,showEvents:true,messageBackground:55,borderRadius:6};
 const colors={twitch:'#9147ff',kick:'#53fc18',youtube:'#ff0000',tiktok:'#00f2ea'};
 function esc(v){const d=document.createElement('div');d.textContent=v??'';return d.innerHTML}
+function renderMessageContent(container,message,emotes,platform){
+ const text=String(message||''); const ranges=[];
+ if(platform==='twitch'&&emotes&&typeof emotes==='object'){
+  for(const [id,positions] of Object.entries(emotes)){
+   for(const position of positions||[]){
+    const match=String(position).match(/^(\d+)-(\d+)$/); if(!match)continue;
+    ranges.push({id,start:Number(match[1]),end:Number(match[2])});
+   }
+  }
+ }
+ ranges.sort((a,b)=>a.start-b.start); let cursor=0;
+ for(const range of ranges){
+  if(range.start<cursor||range.start>=text.length)continue;
+  if(range.start>cursor)container.appendChild(document.createTextNode(text.slice(cursor,range.start)));
+  const emoteText=text.slice(range.start,range.end+1);
+  const img=document.createElement('img'); img.className='chat-emote'; img.alt=emoteText; img.title=emoteText; img.loading='lazy';
+  img.src=`https://static-cdn.jtvnw.net/emoticons/v2/${encodeURIComponent(range.id)}/default/dark/2.0`;
+  img.onerror=()=>img.replaceWith(document.createTextNode(emoteText));
+  container.appendChild(img); cursor=range.end+1;
+ }
+ if(cursor<text.length)container.appendChild(document.createTextNode(text.slice(cursor)));
+}
 function applyConfig(){
  chat.style.padding=(cfg.padding??8)+'px'; chat.style.gap=(cfg.spacing??6)+'px';
 }
@@ -32,7 +54,7 @@ function render(m){
  const p=document.createElement('span');p.className='platform';p.style.background=colors[m.platform]||'#888';p.textContent=m.platform;h.appendChild(p);
  const u=document.createElement('span');u.className='user';u.textContent=m.displayName||m.username;u.style.color=m.color||'#fff';h.appendChild(u);
  if(cfg.showTimestamp){const t=document.createElement('span');t.className='time';t.textContent=new Date(m.timestamp).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});h.appendChild(t)}
- b.appendChild(h); const t=document.createElement('div');t.className='text';t.style.fontSize=(cfg.fontSize??16)+'px';t.innerHTML=esc(m.message);b.appendChild(t);el.appendChild(b);chat.appendChild(el);
+ b.appendChild(h); const t=document.createElement('div');t.className='text';t.style.fontSize=(cfg.fontSize??16)+'px';renderMessageContent(t,m.message,m.emotes,m.platform);b.appendChild(t);el.appendChild(b);chat.appendChild(el);
  while(chat.children.length>(cfg.maxMessages||100))chat.removeChild(chat.firstChild);
  chat.scrollTop=chat.scrollHeight;
 }
