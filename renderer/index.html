@@ -48,8 +48,8 @@
 
       <fieldset>
         <legend>Canais</legend>
-        <label>Twitch <input id="twitchInput" placeholder="ex: gaules" /></label>
-        <label>Kick <input id="kickInput" placeholder="ex: gaules ou https://kick.com/gaules" /></label>
+        <label>Twitch <input id="twitchInput" placeholder="ex: faladerix" /></label>
+        <label>Kick <input id="kickInput" placeholder="ex: faladerix ou https://kick.com/faladerix" /></label>
         <label>YouTube (ID UC... ou @handle) <input id="youtubeInput" placeholder="ex: @seucanal" /></label>
         <label>TikTok <input id="tiktokInput" placeholder="ex: seuusuario" /></label>
       </fieldset>
@@ -131,6 +131,35 @@
         <legend>Comportamento</legend>
         <label class="checkline"><input type="checkbox" id="startLockedInput" /> Iniciar sempre bloqueado</label>
         <label class="checkline"><input type="checkbox" id="saveHistoryInput" /> Salvar histórico da sessão (.txt)</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>OBS Studio</legend>
+        <p class="hint">Gere uma fonte de navegador local, estável e independente da aparência do overlay. O OBS exibirá somente o chat configurado abaixo.</p>
+        <label class="checkline"><input type="checkbox" id="obsEnabledInput" /> Ativar fonte do OBS</label>
+        <div style="display:flex; gap:8px;">
+          <input id="obsUrlInput" readonly style="flex:1;" />
+          <button id="copyObsBtn" type="button">Copiar</button>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;">
+          <label>Mensagens <input type="number" id="obsMaxMessagesInput" min="20" max="300" /></label>
+          <label>Fonte (px) <input type="number" id="obsFontSizeInput" min="10" max="32" /></label>
+          <label>Espaçamento (px) <input type="number" id="obsSpacingInput" min="0" max="20" /></label>
+          <label>Fundo (%) <input type="number" id="obsBackgroundInput" min="0" max="100" /></label>
+          <label>Opacidade (%) <input type="number" id="obsOpacityInput" min="20" max="100" /></label>
+          <label>Arredondamento (px) <input type="number" id="obsRadiusInput" min="0" max="30" /></label>
+        </div>
+        <label class="checkline"><input type="checkbox" id="obsAvatarsInput" /> Mostrar avatar</label>
+        <label class="checkline"><input type="checkbox" id="obsTimestampInput" /> Mostrar horário</label>
+        <label class="checkline"><input type="checkbox" id="obsEventsInput" /> Mostrar eventos</label>
+        <button id="openObsBtn" type="button" style="margin-top:8px; width:100%;">Abrir fonte no navegador</button>
+      </fieldset>
+
+      <fieldset>
+        <legend>Atualizações</legend>
+        <label class="checkline"><input type="checkbox" id="autoUpdateInput" /> Baixar atualizações automaticamente (recomendado)</label>
+        <button id="checkUpdatesBtn" type="button" style="margin-top:8px; width:100%;">Buscar atualizações agora</button>
+        <p id="updateStatus" class="hint">As atualizações são verificadas pelo GitHub quando uma nova versão é publicada.</p>
       </fieldset>
 
       <div style="display: flex; gap: 8px; margin-top: 12px;">

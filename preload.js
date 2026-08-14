@@ -12,4 +12,9 @@ contextBridge.exposeInMainWorld('api', {
   openExternal: (url) => ipcRenderer.send('open-external', url),
   reconnectAll: () => ipcRenderer.send('reconnect-all'),
   quitApp: () => ipcRenderer.send('quit-app'),
+  checkForUpdates: () => ipcRenderer.send('check-for-updates'),
+  openObsSource: () => ipcRenderer.send('open-obs-source'),
+  getObsUrl: () => ipcRenderer.sendSync('get-obs-url'),
+  onUpdateStatus: (cb) => ipcRenderer.on('update-status', (_e, status) => cb(status)),
+  onShowSettings: (cb) => ipcRenderer.on('show-settings', () => cb()),
 });

@@ -1,12 +1,24 @@
-const { app, BrowserWindow, ipcMain, globalShortcut, screen, dialog, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, globalShortcut, screen, dialog, shell, Tray, Menu, nativeImage } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
+const http = require('http');
+const { WebSocketServer } = require('ws');
+
+// Identidade do aplicativo no Windows: mantém o ícone correto na barra de tarefas.
+if (process.platform === 'win32') {
+  app.setAppUserModelId('com.multistream.chatoverlay');
+}
 
 const { createConnectionManager } = require('./services/connection-manager');
 const { createHistoryWriter } = require('./services/history-writer');
 
 const CONFIG_PATH = path.join(app.getPath('userData'), 'config.json');
+const OBS_PORT = 19191;
+const SINGLE_INSTANCE = app.requestSingleInstanceLock();
+if (!SINGLE_INSTANCE) {
+  app.quit();
+}
 
 const DEFAULT_CONFIG = {
   channels: { twitch: '', kick: '', youtube: '', tiktok: '' },
@@ -29,6 +41,26 @@ const DEFAULT_CONFIG = {
   behavior: {
     startLocked: false,
     saveHistory: false,
+  },
+  window: {
+    x: null,
+    y: null,
+  },
+  obs: {
+    enabled: true,
+    maxMessages: 100,
+    fontSize: 16,
+    opacity: 100,
+    spacing: 6,
+    padding: 8,
+    showTimestamp: false,
+    showAvatars: true,
+    showEvents: true,
+    messageBackground: 55,
+    borderRadius: 6,
+  },
+  updates: {
+    autoDownload: true,
   },
   // Doação é 100% opcional e não desbloqueia nada — o app é gratuito e
   // completo pra qualquer pessoa, com ou sem apoio.
@@ -54,6 +86,10 @@ let mainWindow;
 let locked = true;
 let currentConfig = DEFAULT_CONFIG;
 let historyWriter = null;
+let tray = null;
+let obsServer = null;
+let obsWss = null;
+const obsMessages = [];
 
 function deepMerge(base, override) {
   const out = { ...base };
@@ -95,21 +131,70 @@ function saveConfig(cfg) {
   fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2));
 }
 
+function getSafeWindowPosition(cfg, w, h) {
+  const displays = screen.getAllDisplays();
+  if (Number.isFinite(cfg.window?.x) && Number.isFinite(cfg.window?.y)) {
+    const x = cfg.window.x;
+    const y = cfg.window.y;
+    const visible = displays.some((d) => {
+      const wa = d.workArea;
+      return x < wa.x + wa.width && x + w > wa.x && y < wa.y + wa.height && y + h > wa.y;
+    });
+    if (visible) return { x, y };
+  }
+  const wa = screen.getPrimaryDisplay().workArea;
+  return {
+    x: Math.max(0, wa.x + wa.width - w - 20),
+    y: Math.max(0, wa.y + 40),
+  };
+}
+
+function persistWindowBounds() {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  const [x, y] = mainWindow.getPosition();
+  const [width, height] = mainWindow.getSize();
+  currentConfig.display.width = width;
+  currentConfig.display.height = height;
+  currentConfig.window = { x, y };
+  saveConfig(currentConfig);
+}
+
+function createTray() {
+  if (tray) return;
+  const icon = nativeImage.createFromPath(path.join(__dirname, 'assets', 'tray.png'));
+  tray = new Tray(icon);
+  tray.setToolTip('Multistream Chat Overlay');
+  tray.setContextMenu(Menu.buildFromTemplate([
+    { label: 'Mostrar chat', click: () => showMainWindow() },
+    { label: 'Configurações', click: () => { showMainWindow(); mainWindow.webContents.send('show-settings'); } },
+    { type: 'separator' },
+    { label: 'Sair', click: () => app.quit() },
+  ]));
+  tray.on('double-click', showMainWindow);
+}
+
+function showMainWindow() {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  mainWindow.show();
+  mainWindow.focus();
+}
+
 function createWindow(cfg) {
-  const { width: screenWidth } = screen.getPrimaryDisplay().workAreaSize;
   const w = cfg.display.width;
   const h = cfg.display.height;
+  const pos = getSafeWindowPosition(cfg, w, h);
 
   mainWindow = new BrowserWindow({
+    icon: path.join(__dirname, 'assets', 'icon.png'),
     width: w,
     height: h,
-    x: screenWidth - w - 20,
-    y: 40,
+    x: pos.x,
+    y: pos.y,
     transparent: true,
     frame: false,
     alwaysOnTop: true,
     resizable: true,
-    skipTaskbar: true,
+    skipTaskbar: false,
     hasShadow: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -120,14 +205,16 @@ function createWindow(cfg) {
 
   mainWindow.setAlwaysOnTop(true, 'screen-saver');
   mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-
-  // Exclui a janela de qualquer captura de tela no Windows (Display Capture
-  // do OBS não vai enxergá-la).
   mainWindow.setContentProtection(true);
-
   mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 
+  mainWindow.on('move', persistWindowBounds);
+  mainWindow.on('resize', persistWindowBounds);
+  mainWindow.on('close', persistWindowBounds);
+  mainWindow.on('closed', () => { mainWindow = null; });
+
   registerShortcuts();
+  createTray();
 }
 
 function registerShortcuts() {
@@ -150,7 +237,7 @@ function resizeWindow(delta) {
   mainWindow.setSize(newW, newH);
   currentConfig.display.width = newW;
   currentConfig.display.height = newH;
-  saveConfig(currentConfig);
+  persistWindowBounds();
 }
 
 function setLocked(value) {
@@ -164,6 +251,12 @@ function pushMessage(msg) {
     mainWindow.webContents.send('chat-message', msg);
   }
   if (historyWriter) historyWriter.write(msg);
+  if (!currentConfig.filters || currentConfig.filters[msg.platform] !== false) {
+    obsMessages.push(msg);
+    const max = currentConfig.display?.maxMessages || 100;
+    while (obsMessages.length > max) obsMessages.shift();
+    broadcastObs(msg);
+  }
 }
 
 function pushStatus(platform, status) {
@@ -186,21 +279,63 @@ const connectionManager = createConnectionManager({
   onStatus: pushStatus,
 });
 
-app.whenReady().then(() => {
-  autoUpdater.checkForUpdatesAndNotify();
+app.on('second-instance', () => showMainWindow());
 
-  autoUpdater.on('update-downloaded', (info) => {
+function checkForUpdates(manual = false) {
+  if (!currentConfig.updates?.autoDownload && !manual) return;
+  autoUpdater.checkForUpdates();
+}
+
+function createObsServer() {
+  obsServer = http.createServer((req, res) => {
+    if (req.url === '/obs') {
+      const html = fs.readFileSync(path.join(__dirname, 'renderer', 'obs.html'), 'utf8');
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
+      return res.end(html);
+    }
+    res.writeHead(404);
+    res.end('Not found');
+  });
+  obsWss = new WebSocketServer({ server: obsServer });
+  obsWss.on('connection', (ws) => {
+    ws.send(JSON.stringify({ type: 'init', config: currentConfig.obs || DEFAULT_CONFIG.obs, messages: obsMessages }));
+    ws.on('error', () => {});
+  });
+  obsServer.on('error', (err) => {
+    console.error('Servidor OBS:', err.message);
+  });
+  obsServer.listen(OBS_PORT, '127.0.0.1');
+}
+
+function broadcastObs(msg) {
+  if (!obsWss) return;
+  if (currentConfig.obs?.enabled === false) return;
+  for (const client of obsWss.clients) {
+    if (client.readyState === 1) client.send(JSON.stringify({ type: 'message', message: msg }));
+  }
+}
+
+app.whenReady().then(() => {
+  currentConfig = loadConfig();
+  autoUpdater.autoDownload = currentConfig.updates?.autoDownload !== false;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  autoUpdater.on('update-downloaded', () => {
     dialog.showMessageBox({
       type: 'info',
-      title: 'Atualização Disponível',
+      title: 'Atualização disponível',
       message: 'Uma nova versão foi baixada. O aplicativo será reiniciado para instalá-la.',
-      buttons: ['Reiniciar e Instalar']
-    }).then(() => {
-      autoUpdater.quitAndInstall();
+      buttons: ['Reiniciar e instalar', 'Depois']
+    }).then(({ response }) => {
+      if (response === 0) autoUpdater.quitAndInstall();
     });
   });
 
-  currentConfig = loadConfig();
+  autoUpdater.on('update-available', () => mainWindow?.webContents.send('update-status', 'available'));
+  autoUpdater.on('update-not-available', () => mainWindow?.webContents.send('update-status', 'latest'));
+  autoUpdater.on('error', (err) => mainWindow?.webContents.send('update-status', 'error:' + (err?.message || 'erro desconhecido')));
+
+  createObsServer();
   createWindow(currentConfig);
 
   mainWindow.webContents.once('did-finish-load', () => {
@@ -211,6 +346,7 @@ app.whenReady().then(() => {
     mainWindow.webContents.send('load-config', currentConfig);
     applyHistorySetting(currentConfig);
     connectionManager.startAll(currentConfig.channels);
+    if (currentConfig.updates?.autoDownload !== false) checkForUpdates(false);
   });
 });
 
@@ -242,6 +378,8 @@ ipcMain.on('save-config', (event, cfg) => {
   const channelsChanged = JSON.stringify(merged.channels) !== JSON.stringify(currentConfig.channels);
   currentConfig = merged;
   saveConfig(currentConfig);
+  autoUpdater.autoDownload = currentConfig.updates?.autoDownload !== false;
+  autoUpdater.autoInstallOnAppQuit = true;
   applyHistorySetting(currentConfig);
   if (channelsChanged) {
     connectionManager.stopAll();
@@ -254,11 +392,16 @@ ipcMain.on('reconnect-all', () => {
   connectionManager.startAll(currentConfig.channels);
 });
 
+ipcMain.on('check-for-updates', () => checkForUpdates(true));
+ipcMain.on('open-obs-source', () => shell.openExternal(`http://127.0.0.1:${OBS_PORT}/obs`));
+ipcMain.on('get-obs-url', (event) => event.returnValue = `http://127.0.0.1:${OBS_PORT}/obs`);
 ipcMain.on('quit-app', () => app.quit());
 
 app.on('window-all-closed', () => {
   globalShortcut.unregisterAll();
   connectionManager.stopAll();
   if (historyWriter) historyWriter.close();
+  if (obsServer) obsServer.close();
+  if (tray) tray.destroy();
   app.quit();
 });

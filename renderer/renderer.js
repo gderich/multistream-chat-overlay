@@ -10,6 +10,22 @@ const clearBtn = document.getElementById('clearBtn');
 const reconnectBtn = document.getElementById('reconnectBtn');
 const statusRow = document.getElementById('statusRow');
 const onboardingEl = document.getElementById('onboarding');
+const obsUrlInput = document.getElementById('obsUrlInput');
+const copyObsBtn = document.getElementById('copyObsBtn');
+const openObsBtn = document.getElementById('openObsBtn');
+const autoUpdateInput = document.getElementById('autoUpdateInput');
+const obsEnabledInput = document.getElementById('obsEnabledInput');
+const obsMaxMessagesInput = document.getElementById('obsMaxMessagesInput');
+const obsFontSizeInput = document.getElementById('obsFontSizeInput');
+const obsSpacingInput = document.getElementById('obsSpacingInput');
+const obsBackgroundInput = document.getElementById('obsBackgroundInput');
+const obsOpacityInput = document.getElementById('obsOpacityInput');
+const obsRadiusInput = document.getElementById('obsRadiusInput');
+const obsAvatarsInput = document.getElementById('obsAvatarsInput');
+const obsTimestampInput = document.getElementById('obsTimestampInput');
+const obsEventsInput = document.getElementById('obsEventsInput');
+const checkUpdatesBtn = document.getElementById('checkUpdatesBtn');
+const updateStatusEl = document.getElementById('updateStatus');
 
 const donateBtn = document.getElementById('donateBtn');
 const donatePanel = document.getElementById('donate');
@@ -53,6 +69,7 @@ const fields = {
   spacing: document.getElementById('spacingInput'),
   startLocked: document.getElementById('startLockedInput'),
   saveHistory: document.getElementById('saveHistoryInput'),
+  autoUpdate: document.getElementById('autoUpdateInput'),
 };
 const opacityValue = document.getElementById('opacityValue');
 
@@ -301,6 +318,19 @@ function populateForm(cfg) {
 
   fields.startLocked.checked = cfg.behavior.startLocked;
   fields.saveHistory.checked = cfg.behavior.saveHistory;
+  fields.autoUpdate.checked = cfg.updates?.autoDownload !== false;
+  const obs = cfg.obs || {};
+  obsEnabledInput.checked = obs.enabled !== false;
+  obsMaxMessagesInput.value = obs.maxMessages ?? 100;
+  obsFontSizeInput.value = obs.fontSize ?? 16;
+  obsSpacingInput.value = obs.spacing ?? 6;
+  obsBackgroundInput.value = obs.messageBackground ?? 55;
+  obsOpacityInput.value = obs.opacity ?? 100;
+  obsRadiusInput.value = obs.borderRadius ?? 6;
+  obsAvatarsInput.checked = obs.showAvatars !== false;
+  obsTimestampInput.checked = obs.showTimestamp === true;
+  obsEventsInput.checked = obs.showEvents !== false;
+  obsUrlInput.value = window.api.getObsUrl();
 }
 
 function collectForm() {
@@ -335,6 +365,22 @@ function collectForm() {
     behavior: {
       startLocked: fields.startLocked.checked,
       saveHistory: fields.saveHistory.checked,
+    },
+    obs: {
+      enabled: obsEnabledInput.checked,
+      maxMessages: Number(obsMaxMessagesInput.value),
+      fontSize: Number(obsFontSizeInput.value),
+      opacity: Number(obsOpacityInput.value),
+      spacing: Number(obsSpacingInput.value),
+      padding: 8,
+      showTimestamp: obsTimestampInput.checked,
+      showAvatars: obsAvatarsInput.checked,
+      showEvents: obsEventsInput.checked,
+      messageBackground: Number(obsBackgroundInput.value),
+      borderRadius: Number(obsRadiusInput.value),
+    },
+    updates: {
+      autoDownload: fields.autoUpdate.checked,
     },
     onboarded: true,
   };
@@ -497,6 +543,23 @@ closeBtn.addEventListener('click', () => window.api.quitApp());
 settingsBtn.addEventListener('click', () => settingsPanel.classList.toggle('hidden'));
 clearBtn.addEventListener('click', () => { chatEl.innerHTML = ''; });
 reconnectBtn.addEventListener('click', () => window.api.reconnectAll());
+
+copyObsBtn.addEventListener('click', async () => {
+  await navigator.clipboard.writeText(obsUrlInput.value);
+  copyObsBtn.textContent = 'Copiado!';
+  setTimeout(() => { copyObsBtn.textContent = 'Copiar'; }, 1500);
+});
+openObsBtn.addEventListener('click', () => window.api.openObsSource());
+checkUpdatesBtn.addEventListener('click', () => {
+  updateStatusEl.textContent = 'Procurando uma nova versão no GitHub...';
+  window.api.checkForUpdates();
+});
+window.api.onUpdateStatus((status) => {
+  if (status === 'available') updateStatusEl.textContent = 'Nova versão encontrada. O download será iniciado automaticamente.';
+  else if (status === 'latest') updateStatusEl.textContent = 'Você já está usando a versão mais recente.';
+  else if (status.startsWith('error:')) updateStatusEl.textContent = 'Não foi possível verificar agora. Tente novamente mais tarde.';
+});
+window.api.onShowSettings(() => settingsPanel.classList.remove('hidden'));
 
 fields.opacity.addEventListener('input', () => { opacityValue.textContent = fields.opacity.value; });
 
