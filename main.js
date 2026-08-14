@@ -218,12 +218,24 @@ function createWindow(cfg) {
   createTray();
 }
 
+let registeredLockShortcut = null;
+
 function registerShortcuts() {
-  // Re-registra os atalhos sempre que a configuração mudar.
-  globalShortcut.unregisterAll();
+  // Remove explicitamente o atalho anterior antes de registrar o novo.
+  // Isso evita que uma hotkey antiga continue ativa quando o usuário troca
+  // a combinação e depois volta para a combinação padrão.
+  if (registeredLockShortcut) {
+    try {
+      globalShortcut.unregister(registeredLockShortcut);
+    } catch (_) {}
+    registeredLockShortcut = null;
+  }
 
   const lockShortcut = currentConfig.behavior?.lockShortcut || 'CommandOrControl+Alt+L';
   const registered = globalShortcut.register(lockShortcut, () => setLocked(!locked));
+  if (registered) {
+    registeredLockShortcut = lockShortcut;
+  }
   if (!registered && mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send('shortcut-status', {
       ok: false,
@@ -411,6 +423,10 @@ ipcMain.on('get-obs-url', (event) => event.returnValue = `http://127.0.0.1:${OBS
 ipcMain.on('quit-app', () => app.quit());
 
 app.on('window-all-closed', () => {
+  if (registeredLockShortcut) {
+    try { globalShortcut.unregister(registeredLockShortcut); } catch (_) {}
+    registeredLockShortcut = null;
+  }
   globalShortcut.unregisterAll();
   connectionManager.stopAll();
   if (historyWriter) historyWriter.close();
