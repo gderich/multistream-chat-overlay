@@ -42,6 +42,13 @@ const DEFAULT_CONFIG = {
     startLocked: false,
     saveHistory: false,
     lockShortcut: 'CommandOrControl+Alt+L',
+    notifications: {
+      visual: true,
+      visualStyle: 'soft',
+      sound: false,
+      soundVolume: 35,
+      onlyWhenUnfocused: true,
+    },
   },
   window: {
     x: null,
@@ -81,6 +88,7 @@ const DEFAULT_CONFIG = {
     },
   },
   onboarded: false,
+  lastSeenVersion: null,
 };
 
 let mainWindow;
@@ -208,6 +216,7 @@ function createWindow(cfg) {
   mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   mainWindow.setContentProtection(true);
   mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+  mainWindow.webContents.once('did-finish-load', () => setTimeout(maybeShowChangelog, 500));
 
   mainWindow.on('move', persistWindowBounds);
   mainWindow.on('resize', persistWindowBounds);
@@ -305,6 +314,27 @@ const connectionManager = createConnectionManager({
 
 app.on('second-instance', () => showMainWindow());
 
+
+function maybeShowChangelog() {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  const currentVersion = app.getVersion();
+  // Only show automatically for an existing installation that has already
+  // completed onboarding and has not yet acknowledged this version.
+  if (currentConfig.onboarded && currentConfig.lastSeenVersion !== currentVersion) {
+    mainWindow.webContents.send('show-changelog', {
+      version: currentVersion,
+      changes: [
+        'Novas notificações de mensagens, com destaque visual suave.',
+        'Som de nova mensagem opcional, com controle de volume.',
+        'Opção para tocar o som somente quando o chat não estiver em foco.',
+        'Animação e comportamento das notificações podem ser ajustados em Configurações → Notificações.',
+      ],
+    });
+    currentConfig.lastSeenVersion = currentVersion;
+    saveConfig(currentConfig);
+  }
+}
+
 function checkForUpdates(manual = false) {
   if (!currentConfig.updates?.autoDownload && !manual) return;
   autoUpdater.checkForUpdates();
@@ -399,6 +429,7 @@ ipcMain.on('toggle-lock', () => setLocked(!locked));
 
 ipcMain.on('save-config', (event, cfg) => {
   const merged = deepMerge(DEFAULT_CONFIG, cfg);
+  if (merged.onboarded && !merged.lastSeenVersion) merged.lastSeenVersion = app.getVersion();
   const channelsChanged = JSON.stringify(merged.channels) !== JSON.stringify(currentConfig.channels);
   currentConfig = merged;
   saveConfig(currentConfig);

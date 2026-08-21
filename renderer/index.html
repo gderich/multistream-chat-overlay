@@ -150,6 +150,25 @@
       </fieldset>
 
       <fieldset>
+        <legend>Notificações</legend>
+        <label class="checkline"><input type="checkbox" id="notificationVisualInput" /> Destacar novas mensagens</label>
+        <label>Estilo do destaque
+          <select id="notificationStyleInput">
+            <option value="soft">Suave</option>
+            <option value="highlight">Destaque</option>
+          </select>
+        </label>
+        <label class="checkline"><input type="checkbox" id="notificationSoundInput" /> Som de nova mensagem</label>
+        <label>Volume do som
+          <input type="range" id="notificationVolumeInput" min="0" max="100" />
+          <span id="notificationVolumeValue">35%</span>
+        </label>
+        <button id="testNotificationSoundBtn" type="button" style="margin-top:6px; width:100%;">Testar som</button>
+        <label class="checkline"><input type="checkbox" id="notificationUnfocusedInput" /> Notificar somente quando o chat não estiver em foco</label>
+        <p class="hint">O som é desativado por padrão. O destaque visual é leve para não incomodar em chats movimentados.</p>
+      </fieldset>
+
+      <fieldset>
         <legend>OBS Studio</legend>
         <p class="hint">Gere uma fonte de navegador local, estável e independente da aparência do overlay. O OBS exibirá somente o chat configurado abaixo.</p>
         <label class="checkline"><input type="checkbox" id="obsEnabledInput" /> Ativar fonte do OBS</label>
@@ -218,6 +237,18 @@
       <div id="followSection">
         <p><strong>Não pode doar agora?</strong> Sem problema — me seguir nas redes já ajuda demais a manter o projeto vivo!</p>
         <button id="followBtn">Seguir / ver redes</button>
+      </div>
+    </div>
+
+    <div id="changelogModal" class="hidden">
+      <div id="changelogBox">
+        <div id="changelogHeader">
+          <div><strong>O que atualizou?</strong><div id="changelogVersion" class="hint"></div></div>
+          <button id="changelogCloseBtn" title="Fechar">✕</button>
+        </div>
+        <ul id="changelogList"></ul>
+        <p class="hint">Você pode rever essas opções em Configurações.</p>
+        <button id="changelogDoneBtn" type="button" style="width:100%;">Entendi</button>
       </div>
     </div>
 

@@ -43,6 +43,17 @@ const followBtn = document.getElementById('followBtn');
 const lockShortcutInput = document.getElementById('lockShortcutInput');
 const recordShortcutBtn = document.getElementById('recordShortcutBtn');
 const shortcutStatusEl = document.getElementById('shortcutStatus');
+const notificationVisualInput = document.getElementById('notificationVisualInput');
+const notificationStyleInput = document.getElementById('notificationStyleInput');
+const notificationSoundInput = document.getElementById('notificationSoundInput');
+const notificationVolumeInput = document.getElementById('notificationVolumeInput');
+const notificationVolumeValue = document.getElementById('notificationVolumeValue');
+const notificationUnfocusedInput = document.getElementById('notificationUnfocusedInput');
+const testNotificationSoundBtn = document.getElementById('testNotificationSoundBtn');
+const changelogModal = document.getElementById('changelogModal');
+const changelogVersion = document.getElementById('changelogVersion');
+const changelogList = document.getElementById('changelogList');
+const changelogCloseBtn = document.getElementById('changelogCloseBtn');
 const moreBtn = document.getElementById('moreBtn');
 const compactMenu = document.getElementById('compactMenu');
 
@@ -76,6 +87,11 @@ const fields = {
   saveHistory: document.getElementById('saveHistoryInput'),
   autoUpdate: document.getElementById('autoUpdateInput'),
   lockShortcut: document.getElementById('lockShortcutInput'),
+  notificationVisual: notificationVisualInput,
+  notificationStyle: notificationStyleInput,
+  notificationSound: notificationSoundInput,
+  notificationVolume: notificationVolumeInput,
+  notificationUnfocused: notificationUnfocusedInput,
 };
 const opacityValue = document.getElementById('opacityValue');
 
@@ -230,12 +246,47 @@ function addMessage(msg) {
   }
 }
 
+
+let audioContext = null;
+function playNotificationSound() {
+  const volume = Math.max(0, Math.min(100, Number(config?.behavior?.notifications?.soundVolume ?? 35))) / 100;
+  if (volume <= 0) return;
+  try {
+    audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+    if (audioContext.state === 'suspended') audioContext.resume();
+    const now = audioContext.currentTime;
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(720, now);
+    osc.frequency.exponentialRampToValueAtTime(980, now + 0.075);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.08 * volume, now + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.13);
+    osc.connect(gain).connect(audioContext.destination);
+    osc.start(now);
+    osc.stop(now + 0.14);
+  } catch (_) {}
+}
+
+function shouldNotifyNewMessage(msg) {
+  if (!config?.behavior?.notifications || msg.type !== 'chat') return false;
+  if (config.behavior.notifications.visual && !config.behavior.notifications.onlyWhenUnfocused ||
+      config.behavior.notifications.visual && config.behavior.notifications.onlyWhenUnfocused && !document.hasFocus()) return true;
+  if (config.behavior.notifications.sound &&
+      (!config.behavior.notifications.onlyWhenUnfocused || !document.hasFocus())) playNotificationSound();
+  return false;
+}
+
 function renderMessage(msg) {
   if (config && config.filters && config.filters[msg.platform] === false) return;
   if (msg.type !== 'chat' && config && !config.display.showEvents) return;
 
   const div = document.createElement('div');
   div.className = msg.type === 'chat' ? 'message' : 'message event event-' + msg.type;
+  const notifications = config?.behavior?.notifications || {};
+  const notifyVisual = msg.type === 'chat' && notifications.visual && (!notifications.onlyWhenUnfocused || !document.hasFocus());
+  if (notifyVisual) div.classList.add('new-message', 'new-message-' + (notifications.visualStyle || 'soft'));
   div.style.borderLeftColor = platformColors[msg.platform] || '#888';
 
   if (config && config.display.showAvatars && msg.avatar) {
@@ -286,6 +337,11 @@ function renderMessage(msg) {
 
   div.appendChild(body);
   chatEl.appendChild(div);
+
+  if (msg.type === 'chat' && config?.behavior?.notifications?.sound &&
+      (!config.behavior.notifications.onlyWhenUnfocused || !document.hasFocus())) {
+    playNotificationSound();
+  }
 
   const max = (config && config.display.maxMessages) || 100;
   while (chatEl.children.length > max) {
@@ -420,6 +476,13 @@ function populateForm(cfg) {
   fields.saveHistory.checked = cfg.behavior.saveHistory;
   fields.lockShortcut.value = formatShortcut(cfg.behavior?.lockShortcut || 'CommandOrControl+Alt+L');
   fields.lockShortcut.dataset.accelerator = cfg.behavior?.lockShortcut || 'CommandOrControl+Alt+L';
+  const notifications = cfg.behavior?.notifications || {};
+  notificationVisualInput.checked = notifications.visual !== false;
+  notificationStyleInput.value = notifications.visualStyle || 'soft';
+  notificationSoundInput.checked = notifications.sound === true;
+  notificationVolumeInput.value = notifications.soundVolume ?? 35;
+  notificationVolumeValue.textContent = notificationVolumeInput.value + '%';
+  notificationUnfocusedInput.checked = notifications.onlyWhenUnfocused !== false;
   fields.autoUpdate.checked = cfg.updates?.autoDownload !== false;
   const obs = cfg.obs || {};
   obsEnabledInput.checked = obs.enabled !== false;
@@ -468,6 +531,13 @@ function collectForm() {
       startLocked: fields.startLocked.checked,
       saveHistory: fields.saveHistory.checked,
       lockShortcut: fields.lockShortcut.dataset.accelerator || 'CommandOrControl+Alt+L',
+      notifications: {
+        visual: notificationVisualInput.checked,
+        visualStyle: notificationStyleInput.value,
+        sound: notificationSoundInput.checked,
+        soundVolume: Number(notificationVolumeInput.value),
+        onlyWhenUnfocused: notificationUnfocusedInput.checked,
+      },
     },
     obs: {
       enabled: obsEnabledInput.checked,
@@ -724,8 +794,23 @@ window.api.onUpdateStatus((status) => {
   else if (status.startsWith('error:')) updateStatusEl.textContent = 'Não foi possível verificar agora. Tente novamente mais tarde.';
 });
 window.api.onShowSettings(() => settingsPanel.classList.remove('hidden'));
+window.api.onShowChangelog(({ version, changes }) => {
+  changelogVersion.textContent = 'Versão ' + version;
+  changelogList.innerHTML = '';
+  (changes || []).forEach((change) => {
+    const li = document.createElement('li');
+    li.textContent = change;
+    changelogList.appendChild(li);
+  });
+  changelogModal.classList.remove('hidden');
+});
+changelogCloseBtn.addEventListener('click', () => changelogModal.classList.add('hidden'));
+const changelogDoneBtn = document.getElementById('changelogDoneBtn');
+changelogDoneBtn.addEventListener('click', () => changelogModal.classList.add('hidden'));
 
 fields.opacity.addEventListener('input', () => { opacityValue.textContent = fields.opacity.value; });
+notificationVolumeInput.addEventListener('input', () => { notificationVolumeValue.textContent = notificationVolumeInput.value + '%'; });
+testNotificationSoundBtn.addEventListener('click', () => playNotificationSound());
 
 if (resetBtn) {
   resetBtn.addEventListener('click', () => {

@@ -18,4 +18,5 @@ contextBridge.exposeInMainWorld('api', {
   onUpdateStatus: (cb) => ipcRenderer.on('update-status', (_e, status) => cb(status)),
   onShortcutStatus: (cb) => ipcRenderer.on('shortcut-status', (_e, status) => cb(status)),
   onShowSettings: (cb) => ipcRenderer.on('show-settings', () => cb()),
+  onShowChangelog: (cb) => ipcRenderer.on('show-changelog', (_e, data) => cb(data)),
 });
