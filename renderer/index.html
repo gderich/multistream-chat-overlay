@@ -10,16 +10,56 @@
 
     <div id="onboarding" class="hidden">
       <div id="onboardingBox">
-        <label style="display:flex; align-items:center; font-size:12px; gap:8px; margin-bottom:12px; justify-content:center;">
-          <input type="checkbox" id="acceptTerms" />
-          <span>Li e aceito os <a href="#" id="viewTerms" style="color:#7289da; text-decoration:underline;">Termos de Privacidade</a></span>
-        </label>
-        <h2>Bem-vindo(a) 👋</h2>
-        <p>Como você quer começar?</p>
-        <button class="onboardOption" data-preset="simple">Quero algo simples, só meu chat multistream</button>
-        <button class="onboardOption" data-preset="overlay">Quero um overlay discreto sobre o jogo</button>
-        <button class="onboardOption" data-preset="full">Quero ver tudo: eventos, avatares, temas</button>
-        <button class="onboardOption" data-preset="manual">Me dê todo o poder, eu mesmo configuro</button>
+        <div class="onboardProgress"><span id="onboardStepLabel">1 de 6</span><div class="onboardProgressBar"><div id="onboardProgressFill"></div></div></div>
+        <div class="onboardStep" data-step="1">
+          <div class="onboardIcon">💬</div>
+          <h2>Bem-vindo ao Multistream Chat 👋</h2>
+          <p>Seu chat de Twitch, Kick, YouTube e TikTok em um só lugar.</p>
+          <p class="onboardHint">Vamos gastar menos de um minuto para mostrar o essencial. Você poderá rever o tutorial depois.</p>
+        </div>
+        <div class="onboardStep hidden" data-step="2">
+          <div class="onboardIcon">📡</div>
+          <h2>1. Conecte seus canais</h2>
+          <p>Abra <strong>⚙ Configurações</strong> e informe os canais que deseja acompanhar. Você pode usar mais de uma plataforma ao mesmo tempo.</p>
+          <div class="onboardExample"><strong>Exemplo:</strong><br>Twitch: <code>faladerix</code><br>Kick: <code>faladerix</code></div>
+        </div>
+        <div class="onboardStep hidden" data-step="3">
+          <div class="onboardIcon">🎨</div>
+          <h2>2. Personalize o chat</h2>
+          <p>Nas configurações você pode ajustar tamanho, fonte, tema, transparência, quantidade de mensagens, avatares e eventos.</p>
+          <p class="onboardHint">O programa também salva a posição e o tamanho da janela para a próxima vez.</p>
+        </div>
+        <div class="onboardStep hidden" data-step="4">
+          <div class="onboardIcon">🔒</div>
+          <h2>3. Trave quando estiver pronto</h2>
+          <p>Depois de posicionar o chat, use o botão 🔒 para impedir movimentações acidentais.</p>
+          <div class="onboardExample">Atalho padrão: <strong>Ctrl + Alt + L</strong><br><span class="onboardHint">Ele pode ser alterado em Configurações → Comportamento.</span></div>
+        </div>
+        <div class="onboardStep hidden" data-step="5">
+          <div class="onboardIcon">🎥</div>
+          <h2>4. Quer mostrar o chat na live?</h2>
+          <p>Em <strong>Configurações → OBS Studio</strong>, copie a URL da fonte e adicione-a ao OBS como <strong>Fonte de Navegador</strong>.</p>
+          <div class="onboardExample"><code>http://127.0.0.1:19191/obs</code></div>
+        </div>
+        <div class="onboardStep hidden" data-step="6">
+          <div class="onboardIcon">🔔</div>
+          <h2>5. Notificações e atualizações</h2>
+          <p>Você pode destacar novas mensagens, ativar um som e escolher quando ele deve tocar. O programa também pode buscar atualizações automaticamente.</p>
+          <p class="onboardHint">Tudo isso fica disponível em Configurações. Agora escolha um perfil inicial:</p>
+          <div class="onboardProfiles">
+            <button class="onboardOption" data-preset="simple">💬 Simples — chat multistream</button>
+            <button class="onboardOption" data-preset="overlay">🎮 Overlay — discreto sobre o jogo</button>
+            <button class="onboardOption" data-preset="full">✨ Completo — eventos, avatares e temas</button>
+            <button class="onboardOption" data-preset="manual">⚙ Manual — configurar tudo sozinho</button>
+          </div>
+        </div>
+        <div class="onboardFooter">
+          <label class="termsCheck"><input type="checkbox" id="acceptTerms" /> <span>Li e aceito os <a href="#" id="viewTerms">Termos de Privacidade</a></span></label>
+          <div class="onboardActions">
+            <button id="onboardSkip" type="button" class="secondaryBtn">Pular tutorial</button>
+            <div><button id="onboardBack" type="button" class="secondaryBtn" disabled>Voltar</button> <button id="onboardNext" type="button" class="primaryBtn" disabled>Começar</button></div>
+          </div>
+        </div>
       </div>
     </div>
 

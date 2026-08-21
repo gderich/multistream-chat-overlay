@@ -828,8 +828,45 @@ saveBtn.addEventListener('click', () => {
   settingsPanel.classList.add('hidden');
 });
 
+// ---------- Tutorial de primeiro uso ----------
+const onboardSteps = [...onboardingEl.querySelectorAll('.onboardStep')];
+const onboardNext = document.getElementById('onboardNext');
+const onboardBack = document.getElementById('onboardBack');
+const onboardSkip = document.getElementById('onboardSkip');
+const onboardStepLabel = document.getElementById('onboardStepLabel');
+const onboardProgressFill = document.getElementById('onboardProgressFill');
+const acceptTerms = document.getElementById('acceptTerms');
+let onboardStep = 1;
+
+function updateOnboardingStep() {
+  onboardSteps.forEach((el) => el.classList.toggle('hidden', Number(el.dataset.step) !== onboardStep));
+  onboardStepLabel.textContent = `${onboardStep} de ${onboardSteps.length}`;
+  onboardProgressFill.style.width = `${(onboardStep / onboardSteps.length) * 100}%`;
+  onboardBack.disabled = onboardStep === 1;
+  onboardNext.disabled = !acceptTerms.checked;
+  onboardNext.textContent = onboardStep === onboardSteps.length ? 'Concluir' : (onboardStep === 1 ? 'Começar' : 'Próximo');
+}
+
+acceptTerms.addEventListener('change', updateOnboardingStep);
+onboardNext.addEventListener('click', () => {
+  if (!acceptTerms.checked) return;
+  if (onboardStep < onboardSteps.length) {
+    onboardStep += 1;
+    updateOnboardingStep();
+  }
+});
+onboardBack.addEventListener('click', () => {
+  if (onboardStep > 1) { onboardStep -= 1; updateOnboardingStep(); }
+});
+onboardSkip.addEventListener('click', () => {
+  config.onboarded = true;
+  window.api.saveConfig(config);
+  onboardingEl.classList.add('hidden');
+});
+
 onboardingEl.querySelectorAll('.onboardOption').forEach((btn) => {
   btn.addEventListener('click', () => {
+    if (!acceptTerms.checked) return;
     const preset = PRESETS[btn.dataset.preset] || {};
     config = deepMerge(config, preset);
     config.onboarded = true;
@@ -837,8 +874,8 @@ onboardingEl.querySelectorAll('.onboardOption').forEach((btn) => {
     applyDisplaySettings(config);
     window.api.saveConfig(config);
     onboardingEl.classList.add('hidden');
-    if (btn.dataset.preset === 'manual') {
-      settingsPanel.classList.remove('hidden');
-    }
+    if (btn.dataset.preset === 'manual') settingsPanel.classList.remove('hidden');
   });
 });
+
+updateOnboardingStep();

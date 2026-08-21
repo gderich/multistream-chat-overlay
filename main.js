@@ -328,6 +328,7 @@ function maybeShowChangelog() {
         'Som de nova mensagem opcional, com controle de volume.',
         'Opção para tocar o som somente quando o chat não estiver em foco.',
         'Animação e comportamento das notificações podem ser ajustados em Configurações → Notificações.',
+        'Novo tutorial de primeiro uso, com orientação sobre canais, personalização, bloqueio, OBS, notificações e atualizações.',
       ],
     });
     currentConfig.lastSeenVersion = currentVersion;

@@ -96,3 +96,7 @@ Sim, à vontade — não há limite de dispositivos nem verificação de licenç
 ---
 
 © Multistream Chat Overlay — projeto gratuito e sem fins comerciais de **FalaDerix**. Uso sujeito aos [Termos de Uso e Política de Privacidade](./TERMS.md).
+
+
+## Primeiro uso
+A primeira abertura apresenta um tutorial guiado com as funções essenciais do Multistream Chat. Ele pode ser pulado e o usuário pode escolher um perfil inicial; o tutorial não volta a aparecer automaticamente após ser concluído.

@@ -77,40 +77,31 @@ html, body {
 }
 
 /* ---------- Onboarding ---------- */
-#onboarding {
-  position: absolute;
-  inset: 0;
-  z-index: 50;
-  background: rgba(10, 10, 14, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  -webkit-app-region: no-drag;
-}
-#onboarding.hidden { display: none; }
-#onboardingBox {
-  background: #1c1c22;
-  border-radius: 10px;
-  padding: 18px;
-  width: 88%;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-#onboardingBox h2 { margin: 0 0 2px; font-size: 16px; }
-#onboardingBox p { margin: 0 0 6px; opacity: 0.75; font-size: 12px; }
-.onboardOption {
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #2a2a33;
-  color: #fff;
-  text-align: left;
-  cursor: pointer;
-  font-size: 12px;
-}
-.onboardOption:hover { background: #35353f; }
+#onboarding { position:absolute; inset:0; z-index:50; background:rgba(10,10,14,.88); display:flex; align-items:center; justify-content:center; -webkit-app-region:no-drag; }
+#onboarding.hidden { display:none; }
+#onboardingBox { background:#1c1c22; border:1px solid rgba(255,255,255,.10); border-radius:14px; padding:20px; width:min(430px,92%); color:#fff; display:flex; flex-direction:column; gap:12px; box-shadow:0 18px 50px rgba(0,0,0,.55); }
+.onboardProgress { display:flex; align-items:center; gap:10px; font-size:11px; opacity:.72; }
+.onboardProgressBar { flex:1; height:4px; background:#30303a; border-radius:99px; overflow:hidden; }
+#onboardProgressFill { height:100%; width:16.66%; background:#7289da; transition:width .2s ease; }
+.onboardStep.hidden { display:none; }
+.onboardIcon { font-size:36px; margin-bottom:2px; }
+.onboardStep h2 { margin:0; font-size:18px; }
+.onboardStep p { margin:0; opacity:.82; font-size:13px; line-height:1.5; }
+.onboardHint { opacity:.6 !important; font-size:11px !important; }
+.onboardExample { padding:10px 12px; border-radius:8px; background:rgba(114,137,218,.10); border:1px solid rgba(114,137,218,.20); font-size:12px; line-height:1.6; }
+.onboardExample code { color:#9fb0ff; }
+.onboardProfiles { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+.onboardOption { padding:9px 10px; border-radius:7px; border:1px solid #444; background:#2a2a33; color:#fff; text-align:left; cursor:pointer; font-size:11px; }
+.onboardOption:hover { background:#35353f; border-color:#6675b8; }
+.onboardFooter { border-top:1px solid rgba(255,255,255,.08); padding-top:12px; }
+.termsCheck { display:flex; align-items:flex-start; gap:7px; font-size:10px; opacity:.72; line-height:1.4; margin-bottom:10px; }
+.termsCheck a { color:#8fa4ff; text-decoration:underline; }
+.onboardActions { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.onboardActions button { border:0; border-radius:7px; padding:8px 12px; cursor:pointer; color:#fff; font-size:11px; }
+.secondaryBtn { background:#30303a; }
+.primaryBtn { background:#5865f2; }
+.onboardActions button:disabled { opacity:.4; cursor:not-allowed; }
+@media (max-width:430px) { #onboardingBox { width:94%; padding:16px; } .onboardProfiles { grid-template-columns:1fr; } }
 
 /* ---------- Título e status ---------- */
 #titlebar {
