@@ -37,6 +37,7 @@ const DEFAULT_CONFIG = {
     showTimestamp: false,
     showAvatars: true,
     showEvents: true,
+    eventFilters: { sub: true, resub: true, gift: true, donation: true, raid: true, follow: true, member: true, like: true, share: true },
   },
   behavior: {
     startLocked: false,
@@ -329,6 +330,8 @@ function maybeShowChangelog() {
         'Opção para tocar o som somente quando o chat não estiver em foco.',
         'Animação e comportamento das notificações podem ser ajustados em Configurações → Notificações.',
         'Novo tutorial de primeiro uso, com orientação sobre canais, personalização, bloqueio, OBS, notificações e atualizações.',
+        'Eventos de live ampliados: TikTok agora reconhece likes, shares e membros/inscrições quando fornecidos pela plataforma.',
+        'Eventos podem ser filtrados individualmente nas configurações para manter o chat limpo.',
       ],
     });
     currentConfig.lastSeenVersion = currentVersion;

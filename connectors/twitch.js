@@ -66,6 +66,17 @@ function connectTwitch(channel, { onMessage, onStatus }) {
     });
   });
 
+  // Presente coletivo (community gift subs).
+  client.on('submysterygift', (_channel, username, numbOfSubs, methods) => {
+    onMessage({
+      username,
+      message: `presenteou ${numbOfSubs} inscrições`,
+      type: 'gift',
+      color: '#9147ff',
+      meta: { count: numbOfSubs, plan: methods && methods.planName, communityGift: true },
+    });
+  });
+
   client.on('cheer', (_channel, tags, message) => {
     onMessage({
       username: tags['display-name'] || tags.username || 'desconhecido',

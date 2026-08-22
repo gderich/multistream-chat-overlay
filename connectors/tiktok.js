@@ -68,6 +68,60 @@ function connectTikTok(username, { onMessage, onStatus }) {
         });
       });
 
+
+      // TikTok envia likes em lotes. Eles são agregados pelo próprio evento
+      // para evitar uma mensagem por toque em lives muito movimentadas.
+      connection.on(WebcastEvent.LIKE, (data) => {
+        const user = data.user || data;
+        const count = Number(data.likeCount || data.count || 1);
+        if (!count) return;
+        onMessage({
+          username: user.nickname || user.displayId || user.uniqueId || 'desconhecido',
+          avatar: avatarOf(user) || data.profilePictureUrl,
+          message: `enviou ${count} ${count === 1 ? 'like' : 'likes'}`,
+          color: '#25F4EE',
+          type: 'like',
+          meta: { count, totalLikes: data.totalLikeCount },
+        });
+      });
+
+      connection.on(WebcastEvent.SHARE, (data) => {
+        const user = data.user || data;
+        onMessage({
+          username: user.nickname || user.displayId || user.uniqueId || 'desconhecido',
+          avatar: avatarOf(user) || data.profilePictureUrl,
+          message: 'compartilhou a live',
+          color: '#25F4EE',
+          type: 'share',
+        });
+      });
+
+      if (WebcastEvent.MEMBER) {
+        connection.on(WebcastEvent.MEMBER, (data) => {
+          const user = data.user || data;
+          onMessage({
+            username: user.nickname || user.displayId || user.uniqueId || 'desconhecido',
+            avatar: avatarOf(user) || data.profilePictureUrl,
+            message: 'entrou na live',
+            color: '#25F4EE',
+            type: 'member',
+          });
+        });
+      }
+
+      if (WebcastEvent.SUBSCRIBE) {
+        connection.on(WebcastEvent.SUBSCRIBE, (data) => {
+          const user = data.user || data;
+          onMessage({
+            username: user.nickname || user.displayId || user.uniqueId || 'desconhecido',
+            avatar: avatarOf(user) || data.profilePictureUrl,
+            message: 'se inscreveu',
+            color: '#25F4EE',
+            type: 'sub',
+          });
+        });
+      }
+
       connection.on(ControlEvent.CONNECTED, () => {
         onStatus('connected');
         retrier.reset();
@@ -96,7 +150,11 @@ function connectTikTok(username, { onMessage, onStatus }) {
   }
 
   function avatarOf(user) {
-    return user && user.avatarThumb && user.avatarThumb.urlList && user.avatarThumb.urlList[0];
+    return user && (
+    (user.avatarThumb && user.avatarThumb.urlList && user.avatarThumb.urlList[0]) ||
+    user.profilePictureUrl ||
+    user.profilePictureUrlList?.[0]
+  );
   }
 
   start();

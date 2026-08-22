@@ -94,6 +94,7 @@ const fields = {
   notificationUnfocused: notificationUnfocusedInput,
 };
 const opacityValue = document.getElementById('opacityValue');
+const eventFilterInputs = [...document.querySelectorAll('[data-event-filter]')];
 
 const platformColors = {
   twitch: '#9147ff',
@@ -125,6 +126,8 @@ const eventLabels = {
   raid: '🚀 RAID',
   follow: '➕ NOVO FOLLOW',
   member: '⭐ MEMBRO',
+  like: '❤️ LIKES',
+  share: '🔁 SHARE',
 };
 
 let config = null;
@@ -280,12 +283,17 @@ function shouldNotifyNewMessage(msg) {
 
 function renderMessage(msg) {
   if (config && config.filters && config.filters[msg.platform] === false) return;
-  if (msg.type !== 'chat' && config && !config.display.showEvents) return;
+  if (msg.type !== 'chat') {
+    if (config && !config.display.showEvents) return;
+    const eventFilters = config?.display?.eventFilters || {};
+    if (eventFilters[msg.type] === false) return;
+  }
 
   const div = document.createElement('div');
   div.className = msg.type === 'chat' ? 'message' : 'message event event-' + msg.type;
   const notifications = config?.behavior?.notifications || {};
-  const notifyVisual = msg.type === 'chat' && notifications.visual && (!notifications.onlyWhenUnfocused || !document.hasFocus());
+  const isNotifiable = msg.type === 'chat' || ['follow','sub','resub','gift','donation','raid','member','like','share'].includes(msg.type);
+  const notifyVisual = isNotifiable && notifications.visual && (!notifications.onlyWhenUnfocused || !document.hasFocus());
   if (notifyVisual) div.classList.add('new-message', 'new-message-' + (notifications.visualStyle || 'soft'));
   div.style.borderLeftColor = platformColors[msg.platform] || '#888';
 
@@ -338,7 +346,7 @@ function renderMessage(msg) {
   div.appendChild(body);
   chatEl.appendChild(div);
 
-  if (msg.type === 'chat' && config?.behavior?.notifications?.sound &&
+  if (isNotifiable && config?.behavior?.notifications?.sound &&
       (!config.behavior.notifications.onlyWhenUnfocused || !document.hasFocus())) {
     playNotificationSound();
   }
@@ -463,6 +471,8 @@ function populateForm(cfg) {
   fields.timestamp.checked = cfg.display.showTimestamp;
   fields.avatars.checked = cfg.display.showAvatars;
   fields.events.checked = cfg.display.showEvents;
+  const eventFilters = cfg.display?.eventFilters || {};
+  eventFilterInputs.forEach((input) => { input.checked = eventFilters[input.dataset.eventFilter] !== false; });
   fields.style.value = cfg.display.style;
   fields.theme.value = cfg.display.theme;
   fields.width.value = cfg.display.width;
@@ -519,6 +529,7 @@ function collectForm() {
       showTimestamp: fields.timestamp.checked,
       showAvatars: fields.avatars.checked,
       showEvents: fields.events.checked,
+      eventFilters: Object.fromEntries(eventFilterInputs.map((input) => [input.dataset.eventFilter, input.checked])),
       style: fields.style.value,
       theme: fields.theme.value,
       width: Number(fields.width.value),
